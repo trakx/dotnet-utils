@@ -1,1 +1,1 @@
-﻿Need to write description of this package here.
+A .Net library meant to have no dependencies on other Trakx projects, and simply contain small utilities used repeateadly.
