@@ -11,7 +11,7 @@ namespace Trakx.Utils.Serialization.Converters
     /// <summary>
     /// Credits to https://github.com/dotnet/runtime/issues/30524#issuecomment-524619972
     /// </summary>
-    public class JsonNonStringKeyDictionaryConverter<TKey, TValue> : JsonConverter<IDictionary<TKey, TValue>>
+    public class JsonNonStringKeyDictionaryConverter<TKey, TValue> : JsonConverter<IDictionary<TKey, TValue>> where TKey : notnull
     {
         public override IDictionary<TKey, TValue>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -30,7 +30,9 @@ namespace Trakx.Utils.Serialization.Converters
             while (enumerator?.MoveNext() ?? false)
             {
                 var (key, value1) = (KeyValuePair<string, TValue>)enumerator.Current;
-                instance?.Add((TKey)parse.Invoke(null, new object[] { key }), value1);
+                var parsedKey = (TKey) parse.Invoke(null, new object[] {key});
+                if(parsedKey!=null)
+                    instance?.Add(parsedKey, value1);
             }
             return instance;
         }
