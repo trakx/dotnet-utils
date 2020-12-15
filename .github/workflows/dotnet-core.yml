@@ -7,8 +7,8 @@ on:
     branches: [ dev, master ]
     
 env:
-  SOLUTION_PATH: "src/Trakx.Dotnet.Utils.sln"
-  PROJECT_PATH: "src/Trakx.Dotnet.Utils/Trakx.Dotnet.Utils.csproj"
+  SOLUTION_PATH: "src/Trakx.Utils.sln"
+  PROJECT_PATH: "src/Trakx.Utils/Trakx.Utils.csproj"
   
 jobs: 
   build:
