@@ -18,7 +18,7 @@ namespace Trakx.Utils.Extensions
         /// as it is the convention for rebalancing indices.</param>
         /// <returns>Quantity in number units native to the indice.</returns>
         /// <remarks>18 is the number of decimals of the contracts produced by the set factory.</remarks>
-        public static decimal ScaleComponentQuantity(this decimal unscaledQuantity, ushort componentDecimals,
+        public static decimal ScaleConstituentQuantity(this decimal unscaledQuantity, ushort componentDecimals,
             ushort indiceNaturalUnit) => unscaledQuantity * (decimal)(18 - componentDecimals - indiceNaturalUnit).AsAPowerOf10();
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Trakx.Utils.Extensions
         /// as it is the convention for rebalancing indices.</param>
         /// <returns>Quantity in number units native to the component.</returns>
         /// <remarks>18 is the number of decimals of the contracts produced by the set factory.</remarks>
-        public static decimal DescaleComponentQuantity(this decimal scaledQuantity, ushort componentDecimals,
+        public static decimal DescaleConstituentQuantity(this decimal scaledQuantity, ushort componentDecimals,
             ushort indiceNaturalUnit) => scaledQuantity * (decimal)(componentDecimals + indiceNaturalUnit - 18).AsAPowerOf10();
 
         /// <summary>

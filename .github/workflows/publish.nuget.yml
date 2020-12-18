@@ -60,6 +60,9 @@ jobs:
         
     - name: Build
       run: dotnet build ${{env.SOLUTION_PATH}} --configuration Release --no-restore
+
+    - name: Test
+      run: dotnet test ${{env.SOLUTION_PATH}} --no-restore --verbosity normal
     
     - name: Package
       run: dotnet pack ${{env.PROJECT_PATH}} --no-build --configuration Release --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}
