@@ -7,8 +7,7 @@ on:
     branches: [ dev, master ]
     
 env:
-  SOLUTION_PATH: "src/Trakx.Dotnet.Utils.sln"
-  PROJECT_PATH: "src/Trakx.Dotnet.Utils/Trakx.Dotnet.Utils.csproj"
+  SOLUTION_PATH: "src/Trakx.Utils.sln"
   
 jobs: 
   build:
@@ -24,3 +23,5 @@ jobs:
       run: dotnet restore ${{env.SOLUTION_PATH}}
     - name: Build
       run: dotnet build ${{env.SOLUTION_PATH}} --configuration Release --no-restore
+    - name: Test
+      run: dotnet test ${{env.SOLUTION_PATH}} --no-restore --logger GitHubActions --verbosity normal

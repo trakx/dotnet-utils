@@ -12,8 +12,8 @@ on:
       - master
 
 env:
-  SOLUTION_PATH: "src/Trakx.Dotnet.Utils.sln"
-  PROJECT_PATH: "src/Trakx.Dotnet.Utils/Trakx.Dotnet.Utils.csproj"
+  SOLUTION_PATH: "src/Trakx.Utils.sln"
+  PROJECT_PATH: "src/Trakx.Utils/Trakx.Utils.csproj"
   PACKAGE_NAME: Trakx.Dotnet.Utils
 
 jobs:
@@ -60,6 +60,9 @@ jobs:
         
     - name: Build
       run: dotnet build ${{env.SOLUTION_PATH}} --configuration Release --no-restore
+
+    - name: Test
+      run: dotnet test ${{env.SOLUTION_PATH}} --no-restore --verbosity normal
     
     - name: Package
       run: dotnet pack ${{env.PROJECT_PATH}} --no-build --configuration Release --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}
