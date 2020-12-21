@@ -22,7 +22,7 @@ namespace Trakx.Utils.Extensions
 
         public static string ToHexString(this byte[] array)
         {
-            return BitConverter.ToString(array).Replace("-", "").ToLower();
+            return BitConverter.ToString(array).Replace("-", "").ToLowerInvariant();
         }
 
         public static List<string> SplitCsvToLowerCaseDistinctList(this string csvString)

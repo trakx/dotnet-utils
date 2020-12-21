@@ -12,8 +12,7 @@ namespace Trakx.Utils.Tests.Unit.Extensions
         {
             2.AsAPowerOf10().Should().Be(100);
             (-3).AsAPowerOf10().Should().Be(0.001m);
-            new Action(() => 50.AsAPowerOf10()).Should().Throw<OverflowException>()
-                ;
+            new Action(() => 50.AsAPowerOf10()).Should().Throw<OverflowException>();
         }
 
         [Fact]
