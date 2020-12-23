@@ -65,10 +65,10 @@ jobs:
     - name: Test
       run: dotnet test ${{env.SOLUTION_PATH}} --no-restore --verbosity normal
     
-    - name: Package
+    - name: Package Utils
       run: dotnet pack ${{env.UTILS_PROJECT_PATH}} --no-build --configuration Release --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}
 
-    - name: Package
+    - name: Package Utils.Tesing
       run: dotnet pack ${{env.TEST_PROJECT_PATH}} --no-build --configuration Release --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}
 
     - name: Publish
