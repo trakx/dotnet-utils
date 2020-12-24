@@ -14,7 +14,7 @@ on:
 env:
   SOLUTION_PATH: "src/Trakx.Utils.sln"
   UTILS_PROJECT_PATH: "src/Trakx.Utils/Trakx.Utils.csproj"
-  TEST_PROJECT_PATH: "src/Trakx.Utils/Trakx.Utils.Testing.csproj"
+  TEST_PROJECT_PATH: "src/Trakx.Utils.Testing/Trakx.Utils.Testing.csproj"
   PACKAGE_NAME: Trakx.Dotnet.Utils
 
 jobs:
