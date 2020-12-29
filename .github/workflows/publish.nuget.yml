@@ -13,7 +13,8 @@ on:
 
 env:
   SOLUTION_PATH: "src/Trakx.Utils.sln"
-  PROJECT_PATH: "src/Trakx.Utils/Trakx.Utils.csproj"
+  UTILS_PROJECT_PATH: "src/Trakx.Utils/Trakx.Utils.csproj"
+  TEST_PROJECT_PATH: "src/Trakx.Utils.Testing/Trakx.Utils.Testing.csproj"
   PACKAGE_NAME: Trakx.Dotnet.Utils
 
 jobs:
@@ -64,8 +65,11 @@ jobs:
     - name: Test
       run: dotnet test ${{env.SOLUTION_PATH}} --no-restore --verbosity normal
     
-    - name: Package
-      run: dotnet pack ${{env.PROJECT_PATH}} --no-build --configuration Release --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}
+    - name: Package Utils
+      run: dotnet pack ${{env.UTILS_PROJECT_PATH}} --no-build --configuration Release --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}
+
+    - name: Package Utils.Tesing
+      run: dotnet pack ${{env.TEST_PROJECT_PATH}} --no-build --configuration Release --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}
 
     - name: Publish
       run: dotnet nuget push ./nuget/*.nupkg --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/trakx/index.json"
