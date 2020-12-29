@@ -1,4 +1,4 @@
-name: Publish nuget package
+name: Publish nuget packages
 
 on: 
   workflow_dispatch:
@@ -15,7 +15,6 @@ env:
   SOLUTION_PATH: "src/Trakx.Utils.sln"
   UTILS_PROJECT_PATH: "src/Trakx.Utils/Trakx.Utils.csproj"
   TEST_PROJECT_PATH: "src/Trakx.Utils.Testing/Trakx.Utils.Testing.csproj"
-  PACKAGE_NAME: Trakx.Dotnet.Utils
 
 jobs:
   
@@ -68,11 +67,13 @@ jobs:
     - name: Package Utils
       run: dotnet pack ${{env.UTILS_PROJECT_PATH}} --no-build --configuration Release --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}
 
-    - name: Package Utils.Tesing
+    - name: Package Utils.Testing
       run: dotnet pack ${{env.TEST_PROJECT_PATH}} --no-build --configuration Release --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}
 
     - name: Publish
-      run: dotnet nuget push ./nuget/*.nupkg --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/trakx/index.json"
+      run: |
+        ls ./nuget/*.nupkg
+        for f in ./nuget/*.nupkg; do echo "pushing $f file.." && dotnet nuget push $f --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/trakx/index.json" --skip-duplicate; done       
 
     - name: push version tag
       uses: anothrNick/github-tag-action@1.26.0
