@@ -72,7 +72,7 @@ jobs:
       run: dotnet pack ${{env.TEST_PROJECT_PATH}} --no-build --configuration Release --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}
 
     - name: Publish
-      run: dotnet nuget push ./nuget/*.nupkg --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/trakx/index.json"
+      run: dotnet nuget push "./nuget/*.nupkg" --api-key ${{secrets.GITHUB_TOKEN}} --source "https://nuget.pkg.github.com/trakx/index.json"
 
     - name: push version tag
       uses: anothrNick/github-tag-action@1.26.0
