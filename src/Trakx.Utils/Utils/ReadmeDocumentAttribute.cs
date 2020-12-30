@@ -4,11 +4,11 @@ namespace Trakx.Utils.Utils
 {
     public class ReadmeDocumentAttribute : Attribute
     {
-        public readonly string VarName;
-
+        private readonly string _varName;
+        public string VarName => _varName;
         public ReadmeDocumentAttribute(string varName)
         {
-            VarName = varName;
+            _varName = varName;
         }
     }
 }
