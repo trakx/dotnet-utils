@@ -26,8 +26,4 @@
     <ProjectReference Include="..\Trakx.Utils\Trakx.Utils.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Unit\Utils\" />
-  </ItemGroup>
-
 </Project>
