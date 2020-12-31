@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  
+  <Import Project="../Common.Projects.props" />
+  <Import Project="../Packable.Projects.props" />
+  
+  <ItemGroup>
+    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
+    <PackageReference Include="DotNetEnv" Version="1.4.0" />
+  </ItemGroup>
+
+</Project>
