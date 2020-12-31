@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using Trakx.Utils.Utils;
+using Trakx.Utils.Extensions;
 using Xunit;
 
 namespace Trakx.Utils.Tests.Unit.Utils

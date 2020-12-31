@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Trakx.Utils.Extensions;
 
-namespace Trakx.Utils.Utils
+namespace Trakx.Utils.Attributes
 {
     public class IsValidEthereumAddressAttribute : ValidationAttribute
     {

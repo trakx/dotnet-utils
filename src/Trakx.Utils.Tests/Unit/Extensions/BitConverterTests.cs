@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 using FluentAssertions;
 using Trakx.Utils.Serialization.Converters;
@@ -17,7 +18,7 @@ namespace Trakx.Utils.Tests.Unit.Utils
             var bytes = value.GetBytes();
             var rebuiltValue = bytes.ToDecimal();
 
-            rebuiltValue.ToString().Should().Be(decimalAsString);
+            rebuiltValue.ToString(CultureInfo.InvariantCulture).Should().Be(decimalAsString);
         }
 
         [Theory]

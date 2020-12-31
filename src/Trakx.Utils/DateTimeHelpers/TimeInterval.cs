@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Trakx.Utils.Utils
+namespace Trakx.Utils.DateTimeHelpers
 {
 
-    public struct TimeInterval : IEquatable<TimeInterval>
+    public readonly struct TimeInterval : IEquatable<TimeInterval>
     {
         #region Equality members
 
@@ -14,7 +14,7 @@ namespace Trakx.Utils.Utils
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is TimeInterval other && Equals(other);
         }
@@ -40,7 +40,7 @@ namespace Trakx.Utils.Utils
 
         #endregion
 
-        public TimeInterval(DateTime startTime, DateTime endTime)
+        public TimeInterval(System.DateTime startTime, System.DateTime endTime)
         {
             StartTime = startTime;
             EndTime = endTime;
@@ -49,11 +49,11 @@ namespace Trakx.Utils.Utils
         /// <summary>
         /// Inclusive lower bound of the interval.
         /// </summary>
-        public DateTime StartTime { get; }
+        public System.DateTime StartTime { get; }
 
         /// <summary>
         /// Exclusive upper bound of the interval.
         /// </summary>
-        public DateTime EndTime { get; }
+        public System.DateTime EndTime { get; }
     }
 }

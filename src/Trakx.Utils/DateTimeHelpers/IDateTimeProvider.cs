@@ -1,13 +1,13 @@
 ﻿using System;
 
-namespace Trakx.Utils.Api
+namespace Trakx.Utils.DateTimeHelpers
 {
     /// <summary>
     /// Allows easier testing, by setting fixed return values.
     /// </summary>
     public interface IDateTimeProvider
     {
-        DateTime UtcNow { get; }
+        System.DateTime UtcNow { get; }
         DateTimeOffset UtcNowAsOffset { get; }
     }
 
@@ -16,7 +16,7 @@ namespace Trakx.Utils.Api
         #region Implementation of IDateTimeProvider
 
         /// <inheritdoc />
-        public DateTime UtcNow => DateTime.UtcNow;
+        public System.DateTime UtcNow => System.DateTime.UtcNow;
         public DateTimeOffset UtcNowAsOffset => DateTimeOffset.UtcNow;
         #endregion
     }

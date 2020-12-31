@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Trakx.Utils.Utils
+namespace Trakx.Utils.Attributes
 {
     public class ReadmeDocumentAttribute : Attribute
     {
