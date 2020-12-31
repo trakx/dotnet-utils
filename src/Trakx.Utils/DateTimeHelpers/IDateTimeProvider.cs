@@ -7,7 +7,7 @@ namespace Trakx.Utils.DateTimeHelpers
     /// </summary>
     public interface IDateTimeProvider
     {
-        System.DateTime UtcNow { get; }
+        DateTime UtcNow { get; }
         DateTimeOffset UtcNowAsOffset { get; }
     }
 
@@ -16,7 +16,7 @@ namespace Trakx.Utils.DateTimeHelpers
         #region Implementation of IDateTimeProvider
 
         /// <inheritdoc />
-        public System.DateTime UtcNow => System.DateTime.UtcNow;
+        public DateTime UtcNow => DateTime.UtcNow;
         public DateTimeOffset UtcNowAsOffset => DateTimeOffset.UtcNow;
         #endregion
     }

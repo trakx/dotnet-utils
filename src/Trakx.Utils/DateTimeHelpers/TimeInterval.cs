@@ -40,7 +40,7 @@ namespace Trakx.Utils.DateTimeHelpers
 
         #endregion
 
-        public TimeInterval(System.DateTime startTime, System.DateTime endTime)
+        public TimeInterval(DateTime startTime, DateTime endTime)
         {
             StartTime = startTime;
             EndTime = endTime;
@@ -49,11 +49,11 @@ namespace Trakx.Utils.DateTimeHelpers
         /// <summary>
         /// Inclusive lower bound of the interval.
         /// </summary>
-        public System.DateTime StartTime { get; }
+        public DateTime StartTime { get; }
 
         /// <summary>
         /// Exclusive upper bound of the interval.
         /// </summary>
-        public System.DateTime EndTime { get; }
+        public DateTime EndTime { get; }
     }
 }
