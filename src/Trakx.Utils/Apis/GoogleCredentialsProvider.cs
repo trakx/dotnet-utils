@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace Trakx.Utils.Api
+namespace Trakx.Utils.Apis
 {
     public class GoogleCredentialProvider : ICredentialsProvider
     {

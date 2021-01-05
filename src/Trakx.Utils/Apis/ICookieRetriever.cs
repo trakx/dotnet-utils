@@ -1,4 +1,4 @@
-﻿namespace Trakx.Utils.Api
+﻿namespace Trakx.Utils.Apis
 {
     public interface ICookieRetriever
     {

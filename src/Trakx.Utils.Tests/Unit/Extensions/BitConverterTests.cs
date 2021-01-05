@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 using FluentAssertions;
 using Trakx.Utils.Serialization.Converters;
 using Xunit;
 
-namespace Trakx.Utils.Tests.Unit.Utils
+namespace Trakx.Utils.Tests.Unit.Extensions
 {
     public class BitConverterTests
     {
@@ -17,7 +18,7 @@ namespace Trakx.Utils.Tests.Unit.Utils
             var bytes = value.GetBytes();
             var rebuiltValue = bytes.ToDecimal();
 
-            rebuiltValue.ToString().Should().Be(decimalAsString);
+            rebuiltValue.ToString(CultureInfo.InvariantCulture).Should().Be(decimalAsString);
         }
 
         [Theory]

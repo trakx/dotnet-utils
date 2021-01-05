@@ -19,7 +19,7 @@ namespace Trakx.Utils.Extensions
         /// <returns>Quantity in number units native to the indice.</returns>
         /// <remarks>18 is the number of decimals of the contracts produced by the set factory.</remarks>
         public static decimal ScaleConstituentQuantity(this decimal unscaledQuantity, ushort componentDecimals,
-            ushort indiceNaturalUnit) => unscaledQuantity * (decimal)(18 - componentDecimals - indiceNaturalUnit).AsAPowerOf10();
+            ushort indiceNaturalUnit) => unscaledQuantity * (18 - componentDecimals - indiceNaturalUnit).AsAPowerOf10();
 
         /// <summary>
         /// Takes a quantity expressed as a number of units native to the indice to which it belongs, and returns it
@@ -32,7 +32,7 @@ namespace Trakx.Utils.Extensions
         /// <returns>Quantity in number units native to the component.</returns>
         /// <remarks>18 is the number of decimals of the contracts produced by the set factory.</remarks>
         public static decimal DescaleConstituentQuantity(this decimal scaledQuantity, ushort componentDecimals,
-            ushort indiceNaturalUnit) => scaledQuantity * (decimal)(componentDecimals + indiceNaturalUnit - 18).AsAPowerOf10();
+            ushort indiceNaturalUnit) => scaledQuantity * (componentDecimals + indiceNaturalUnit - 18).AsAPowerOf10();
 
         /// <summary>
         /// It looks like .Net Standard doesn't have the good RoundingDirection available, so we do it manually.

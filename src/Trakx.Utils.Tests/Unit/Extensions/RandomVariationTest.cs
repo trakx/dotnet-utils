@@ -4,7 +4,7 @@ using FluentAssertions;
 using Trakx.Utils.Extensions;
 using Xunit;
 
-namespace Trakx.Utils.Tests.Unit.Utils
+namespace Trakx.Utils.Tests.Unit.Extensions
 {
     public class RandomVariationTest
     {

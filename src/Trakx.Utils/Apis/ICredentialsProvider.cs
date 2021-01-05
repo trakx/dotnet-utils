@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace Trakx.Utils.Api
+namespace Trakx.Utils.Apis
 {
     public interface ICredentialsProvider
     {

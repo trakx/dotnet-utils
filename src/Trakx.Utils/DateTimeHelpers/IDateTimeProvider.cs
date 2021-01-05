@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Trakx.Utils.Api
+namespace Trakx.Utils.DateTimeHelpers
 {
     /// <summary>
     /// Allows easier testing, by setting fixed return values.
