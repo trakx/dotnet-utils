@@ -20,7 +20,6 @@ namespace Trakx.Utils.Serialization.Converters
         public override bool CanConvert(Type typeToConvert)
         {
             return typeof(T).IsAssignableFrom(typeToConvert);
-            //return true;
         }
 
         public override T? Read(ref Utf8JsonReader reader,

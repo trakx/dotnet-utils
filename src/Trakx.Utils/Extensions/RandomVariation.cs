@@ -11,7 +11,7 @@ namespace Trakx.Utils.Extensions
         /// </summary>
         /// <param name="original">The original value around which we want a variation.</param>
         /// <param name="maxPercentageVariation">The maximal amplitude of the variation.</param>
-        /// <param name="random">Supply your own instance of Random if predictible result is needed.</param>
+        /// <param name="random">Supply your own instance of Random if predictable result is needed.</param>
         /// <returns></returns>
         public static decimal AddRandomVariation(this decimal original, decimal maxPercentageVariation, Random? random = default)
         {

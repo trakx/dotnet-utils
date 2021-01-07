@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace Trakx.Utils.Api
+namespace Trakx.Utils
 {
     public class LimitedConcurrentQueue<T> : ConcurrentQueue<T>
     {
@@ -15,7 +15,7 @@ namespace Trakx.Utils.Api
         {
             base.Enqueue(element);
             if (Count <= Limit) return;
-            TryDequeue(out T discard);
+            TryDequeue(out _);
         }
     }
 }

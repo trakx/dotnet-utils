@@ -24,15 +24,22 @@ namespace Trakx.Utils.Serialization.Converters
                 null,
                 null,
                 CultureInfo.CurrentCulture)!;
-            var enumerator = (IEnumerator)convertedType.GetMethod("GetEnumerator")?.Invoke(value, null);
-            var parse = typeof(TKey).GetMethod("Parse", 0, BindingFlags.Public | BindingFlags.Static, null, CallingConventions.Any, new[] { typeof(string) }, null);
+            var enumerator = (IEnumerator)convertedType.GetMethod("GetEnumerator")?.Invoke(value, null)!;
+            var parse = typeof(TKey)
+                .GetMethod("Parse", 0, BindingFlags.Public | BindingFlags.Static, 
+                    null, 
+                    CallingConventions.Any, 
+                    new[] { typeof(string) }, null);
+
             if (parse == null) throw new NotSupportedException($"{typeof(TKey)} as TKey in IDictionary<TKey, TValue> is not supported.");
-            while (enumerator?.MoveNext() ?? false)
+            
+            while (enumerator.MoveNext())
             {
                 var (key, value1) = (KeyValuePair<string, TValue>)enumerator.Current;
-                var parsedKey = (TKey) parse.Invoke(null, new object[] {key});
-                if(parsedKey!=null)
-                    instance?.Add(parsedKey, value1);
+                var parsedKey = parse.Invoke(null, new object[] {key});
+
+                if(parsedKey != null)
+                    instance?.Add((TKey)parsedKey, value1);
             }
             return instance;
         }
@@ -40,7 +47,7 @@ namespace Trakx.Utils.Serialization.Converters
         public override void Write(Utf8JsonWriter writer, IDictionary<TKey, TValue> value, JsonSerializerOptions options)
         {
             var convertedDictionary = new Dictionary<string, TValue>(value.Count);
-            foreach (var (k, v) in value) convertedDictionary[k.ToString()] = v;
+            foreach (var (k, v) in value) convertedDictionary[k.ToString()!] = v;
 
             JsonSerializer.Serialize(writer, convertedDictionary, options);
             convertedDictionary.Clear();
