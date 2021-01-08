@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Trakx.Utils.Testing\Trakx.Utils.Testing.csproj" />
     <ProjectReference Include="..\Trakx.Utils\Trakx.Utils.csproj" />
   </ItemGroup>
 

@@ -23,4 +23,8 @@
     <PackageReference Include="DotNetEnv" Version="1.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Trakx.Utils\Trakx.Utils.csproj" />
+  </ItemGroup>
+
 </Project>
