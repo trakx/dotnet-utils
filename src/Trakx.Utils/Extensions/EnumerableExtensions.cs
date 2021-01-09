@@ -134,5 +134,11 @@ namespace Trakx.Utils.Extensions
             throw new InvalidDataException($"Failed to find a valid value from list within {maxStandardDeviations} " +
                             $"standard deviations of the mean, with mean {mean} and standardDeviation {standardDeviation}");
         }
+
+        public static string ToCsvDistinctList<T>(this IEnumerable<T> items, bool spacing = false)
+        {
+            var separator = "," + (spacing ? " " : string.Empty);
+            return string.Join(separator, items.Select(i => i!.ToString()!.ToLowerInvariant().Trim(' ')).Distinct());
+        }
     }
 }
