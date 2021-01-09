@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using DotNetEnv;
-
+using Trakx.Utils.Extensions;
 using static System.Environment;
 
 namespace Trakx.Utils.Testing
@@ -9,8 +9,8 @@ namespace Trakx.Utils.Testing
     {
         static Secrets()
         {
-            var srcPath = new DirectoryInfo(CurrentDirectory).Parent?.Parent?.Parent?.Parent!;
-            Env.Load(Path.Combine(srcPath.FullName, ".env"));
+            var envFilePath= DirectoryInfoExtensions.GetDefaultEnvFilePath(null);
+            if(envFilePath != null) Env.Load(Path.Combine(envFilePath));
         }
 
         public static string? CryptoCompareApiKey => GetEnvironmentVariable("CryptoCompareApiConfiguration__ApiKey");

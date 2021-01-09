@@ -26,19 +26,19 @@ namespace Trakx.Utils.Serialization.Converters
                 CultureInfo.CurrentCulture)!;
             var enumerator = (IEnumerator)convertedType.GetMethod("GetEnumerator")?.Invoke(value, null)!;
             var parse = typeof(TKey)
-                .GetMethod("Parse", 0, BindingFlags.Public | BindingFlags.Static, 
-                    null, 
-                    CallingConventions.Any, 
+                .GetMethod("Parse", 0, BindingFlags.Public | BindingFlags.Static,
+                    null,
+                    CallingConventions.Any,
                     new[] { typeof(string) }, null);
 
             if (parse == null) throw new NotSupportedException($"{typeof(TKey)} as TKey in IDictionary<TKey, TValue> is not supported.");
-            
+
             while (enumerator.MoveNext())
             {
                 var (key, value1) = (KeyValuePair<string, TValue>)enumerator.Current;
-                var parsedKey = parse.Invoke(null, new object[] {key});
+                var parsedKey = parse.Invoke(null, new object[] { key });
 
-                if(parsedKey != null)
+                if (parsedKey != null)
                     instance?.Add((TKey)parsedKey, value1);
             }
             return instance;
