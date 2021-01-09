@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using MathNet.Numerics.Statistics;
 
 namespace Trakx.Utils.Extensions
 {
@@ -14,7 +16,11 @@ namespace Trakx.Utils.Extensions
                 .Skip(1)
                 .Aggregate(
                     new HashSet<T>(ofEnums.First()),
-                    (h, e) => { h.IntersectWith(e); return h; }
+                    (h, e) =>
+                    {
+                        h.IntersectWith(e);
+                        return h;
+                    }
                 );
             return intersection;
         }
@@ -26,7 +32,8 @@ namespace Trakx.Utils.Extensions
         /// Pivot is selected randomly if random number generator is supplied else its selected as last element in the list.
         /// Reference: Introduction to Algorithms 3rd Edition, Corman et al, pp 171
         /// </summary>
-        private static int Partition<T>(this IList<T> list, int start, int end, Random? rnd = null) where T : IComparable<T>
+        private static int Partition<T>(this IList<T> list, int start, int end, Random? rnd = null)
+            where T : IComparable<T>
         {
             if (rnd != null)
                 list.Swap(end, rnd.Next(start, end + 1));
@@ -38,6 +45,7 @@ namespace Trakx.Utils.Extensions
                 if (list[i].CompareTo(pivot) <= 0)
                     list.Swap(i, ++lastLow);
             }
+
             list.Swap(end, ++lastLow);
             return lastLow;
         }
@@ -51,7 +59,9 @@ namespace Trakx.Utils.Extensions
         {
             return NthOrderStatistic(list, n, 0, list.Count - 1, rnd);
         }
-        private static T NthOrderStatistic<T>(this IList<T> list, int n, int start, int end, Random? rnd) where T : IComparable<T>
+
+        private static T NthOrderStatistic<T>(this IList<T> list, int n, int start, int end, Random? rnd)
+            where T : IComparable<T>
         {
             while (true)
             {
@@ -69,7 +79,7 @@ namespace Trakx.Utils.Extensions
         // Credits to https://stackoverflow.com/questions/4140719/calculate-median-in-c-sharp
         public static void Swap<T>(this IList<T> list, int i, int j)
         {
-            if (i == j)   //This check is not required but Partition function may make many calls so its for perf reason
+            if (i == j) //This check is not required but Partition function may make many calls so its for perf reason
                 return;
             var temp = list[i];
             list[i] = list[j];
@@ -98,5 +108,31 @@ namespace Trakx.Utils.Extensions
             return list.NthOrderStatistic(mid);
         }
 
+        /// <summary>
+        /// Returns the first value, in order of preference, of a given list of <see cref="T"/>, where <see cref="T"/>
+        /// are measured by the value returned by the <see cref="valueSelector"/>.
+        /// Useful for choosing a price from a list of quotes by different market data providers, one of which can
+        /// return an erroneous quote.
+        /// </summary>
+        /// <typeparam name="T">Type of the items that are being sorter by preference.</typeparam>
+        /// <param name="preferences">List of items to choose from, ordered by preference.</param>
+        /// <param name="valueSelector">Function used to select the value on which to base the statistics used to pick a value.</param>
+        /// <param name="maxStandardDeviations">Maximum number of standard deviation on which to base the selection. Beyond that value, a
+        /// preferred value is rejected and the next preferred one will be evaluated.</param>
+        public static T SelectPreferenceWithMaxDeviationThreshold<T>(this IEnumerable<T> preferences,
+            Func<T, double> valueSelector, double maxStandardDeviations = 1.5)
+        {
+            var enumerable = preferences.ToList();
+            var (mean, standardDeviation) = enumerable.Select(valueSelector).MeanStandardDeviation();
+            
+            foreach (var preference in enumerable)
+            {
+                if (Math.Abs(valueSelector(preference) - mean) < maxStandardDeviations * standardDeviation)
+                    return preference;
+            }
+
+            throw new InvalidDataException($"Failed to find a valid value from list within {maxStandardDeviations} " +
+                            $"standard deviations of the mean, with mean {mean} and standardDeviation {standardDeviation}");
+        }
     }
 }
