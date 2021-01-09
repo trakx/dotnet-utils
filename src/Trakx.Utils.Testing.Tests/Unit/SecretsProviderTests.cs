@@ -1,10 +1,9 @@
 ﻿using FluentAssertions;
 using Trakx.Utils.Attributes;
-using Trakx.Utils.Testing;
 using Xunit;
 using static System.Environment;
 
-namespace Trakx.Utils.Tests.Unit
+namespace Trakx.Utils.Testing.Tests.Unit
 {
     public class SecretsProviderTests
     {
@@ -20,7 +19,7 @@ namespace Trakx.Utils.Tests.Unit
             envVarValue
                 .EnvironmentVar
                 .Should()
-                .Equals(expectedResult);
+                .Be(expectedResult);
         }
 
         [Fact]
@@ -33,13 +32,13 @@ namespace Trakx.Utils.Tests.Unit
             envVarValue
                 .EnvironmentVar
                 .Should()
-                .Equals(string.Empty);
+                .BeNull();
         }
 
         private class TestSecrets
         {
             [ReadmeDocument("env_var_name")]
-            public string EnvironmentVar { get; set; }
+            public string? EnvironmentVar { get; set; }
         }
     }
 }
