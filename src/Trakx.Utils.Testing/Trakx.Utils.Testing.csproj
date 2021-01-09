@@ -28,4 +28,8 @@
     <ProjectReference Include="..\Trakx.Utils\Trakx.Utils.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Trakx.Utils\Trakx.Utils.csproj" />
+  </ItemGroup>
+
 </Project>

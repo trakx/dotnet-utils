@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Trakx.Utils.Attributes;
 using Trakx.Utils.Extensions;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Trakx.Utils.Testing
@@ -18,6 +19,14 @@ namespace Trakx.Utils.Testing
         public EnvFileDocumentationCreator(ITestOutputHelper output)
         {
             _output = output;
+        }
+
+        [Fact]
+        public async Task TryCreateEnvFileDocumentation_should_create_env_template_file()
+        {
+            var creator = new EnvFileDocumentationCreator(_output);
+            var envFileDocCreated = await creator.TryCreateEnvFileDocumentation().ConfigureAwait(false);
+            envFileDocCreated.Should().BeTrue();
         }
 
         public async Task<bool> TryCreateEnvFileDocumentation()
