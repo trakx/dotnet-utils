@@ -13,7 +13,7 @@ namespace Trakx.Utils.Tests
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_choose_first_value_if_not_too_deviant()
         {
-            var numbers = new double[] {1.0, 1.3, 1.2, 0.9, 0.8, 0.8, 1.2};
+            var numbers = new [] {1.0, 1.3, 1.2, 0.9, 0.8, 0.8, 1.2};
             var (mean, standardDeviation) = numbers.MeanStandardDeviation();
             
             Math.Abs(numbers[0] - mean).Should().BeLessOrEqualTo(standardDeviation);
@@ -26,7 +26,7 @@ namespace Trakx.Utils.Tests
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_choose_first_values_if_too_deviant()
         {
-            var numbers = new double[] { 1.3, 1.2, 1.0, 0.9, 0.8, 0.8, 1.2 };
+            var numbers = new [] { 1.3, 1.2, 1.0, 0.9, 0.8, 0.8, 1.2 };
             var (mean, standardDeviation) = numbers.MeanStandardDeviation();
             var maxStandardDeviation = 0.5;
 
@@ -41,7 +41,7 @@ namespace Trakx.Utils.Tests
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_throw_when_no_value_matches()
         {
-            var numbers = new double[] { 1.3, 1.2, 1.0, 0.9, 0.8, 0.8, 1.2 };
+            var numbers = new [] { 1.3, 1.2, 1.0, 0.9, 0.8, 0.8, 1.2 };
             var (mean, standardDeviation) = numbers.MeanStandardDeviation();
             var maxStandardDeviation = 0.01;
 
@@ -51,6 +51,13 @@ namespace Trakx.Utils.Tests
             var selectionAction = new Action(() => numbers.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation));
 
             selectionAction.Should().Throw<InvalidDataException>();
+        }
+
+        [Fact]
+        public void ToCsvDistinctList_should_join_trimmed_lower_cased_ToString_results_with_spacing()
+        {
+            var strings = new[] {"ab ", "def", " klm", "KlM"};
+            strings.ToCsvDistinctList(true).Should().Be("ab, def, klm");
         }
     }
 }
