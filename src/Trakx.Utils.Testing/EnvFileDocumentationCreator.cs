@@ -25,7 +25,7 @@ namespace Trakx.Utils.Testing
         public async Task TryCreateEnvFileDocumentation_should_create_env_template_file()
         {
             var creator = new EnvFileDocumentationCreator(_output);
-            var envFileDocCreated = await creator.TryCreateEnvFileDocumentation();
+            var envFileDocCreated = await creator.TryCreateEnvFileDocumentation().ConfigureAwait(false);
             envFileDocCreated.Should().BeTrue();
         }
 
