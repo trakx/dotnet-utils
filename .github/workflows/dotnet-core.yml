@@ -42,7 +42,7 @@ jobs:
         CODACY_PROJECT_TOKEN: ${{secrets.CODACY_TOKEN}}
       run: |
         for f in ./src/*.Tests/coverage.opencover.xml; do echo "sending coverage report $f" && \
-            bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l csharp -r $f --partial --commit-uuid ${{env.GITHUB_SHA}}; \
+            bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l csharp -r $f --partial; \
         done
         bash <(curl -Ls https://coverage.codacy.com/get.sh) final
         
