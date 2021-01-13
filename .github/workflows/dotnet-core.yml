@@ -41,8 +41,4 @@ jobs:
       uses: codacy/codacy-coverage-reporter-action@master
       with:
         project-token: ${{ secrets.CODACY_TOKEN }}
-        coverage-reports: ./src/Trakx.Utils.Tests/coverage.opencover.xml 
-    
-      run: |
-        for f in ./src/*.Tests/coverage.opencover.xml; do reports=$reports,$f && echo $reports; done\
-        
+        coverage-reports: ./src/Trakx.Utils.Tests/coverage.opencover.xml
