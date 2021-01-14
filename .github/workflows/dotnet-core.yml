@@ -44,9 +44,5 @@ jobs:
         for f in ./src/*.Tests/coverage.opencover.xml; do echo "sending coverage report $f" && \
             bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l csharp -r $f --partial --commit-uuid ${{GITHUB_SHA}}; \
         done
-        bash <(curl -Ls https://coverage.codacy.com/get.sh) final
-    #- name: Publish Coverage
-    #  uses: codacy/codacy-coverage-reporter-action@master
-    #  with:
-    #    project-token: ${{ secrets.CODACY_TOKEN }}
-    #    coverage-reports: ./src/Trakx.Utils.Tests/coverage.opencover.xml
+        bash <(curl -Ls https://coverage.codacy.com/get.sh) final --commit-uuid ${{GITHUB_SHA}}
+
