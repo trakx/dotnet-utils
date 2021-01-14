@@ -23,7 +23,6 @@ jobs:
       run: dotnet restore ${{env.SOLUTION_PATH}}
     - name: Build
       run: |
-        dotnet build ${{env.SOLUTION_PATH}} --configuration Release --no-restore
         dotnet build ${{env.SOLUTION_PATH}} --configuration Debug --no-restore
 
     - name: Test & Coverage
@@ -36,7 +35,6 @@ jobs:
             /p:ExcludeByAttribute=\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\" \
             /p:Include=\"[Trakx.*]*\"; \
         done
-        #dotnet test ${{env.SOLUTION_PATH}} --no-restore --logger GitHubActions --verbosity normal
     - name: Publish Coverage
       env: 
         CODACY_PROJECT_TOKEN: ${{secrets.CODACY_TOKEN}}
