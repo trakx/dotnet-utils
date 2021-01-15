@@ -20,7 +20,9 @@ namespace Trakx.Utils.Tests
 
             var selection = numbers.SelectPreferenceWithMaxDeviationThreshold(x => x, 1);
             
-            selection.Should().Be(numbers[0]);
+            selection.Selection.Should().Be(numbers[0]);
+            selection.Mean.Should().BeApproximately(1.0285714285714285, double.Epsilon);
+            selection.StandardDeviation.Should().BeApproximately(0.20586634591635516, double.Epsilon);
         }
 
         [Fact]
@@ -35,7 +37,7 @@ namespace Trakx.Utils.Tests
 
             var selection = numbers.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation);
 
-            selection.Should().Be(numbers[2]);
+            selection.Selection.Should().Be(numbers[2]);
         }
 
         [Fact]

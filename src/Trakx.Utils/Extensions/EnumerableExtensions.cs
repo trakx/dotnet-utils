@@ -108,6 +108,20 @@ namespace Trakx.Utils.Extensions
             return list.NthOrderStatistic(mid);
         }
 
+        public readonly struct SelectionWithMeanStandardDeviation<T>
+        {
+            public SelectionWithMeanStandardDeviation(T selection, double mean, double standardDeviation)
+            {
+                Selection = selection;
+                Mean = mean;
+                StandardDeviation = standardDeviation;
+            }
+
+            public readonly T Selection;
+            public readonly double Mean;
+            public readonly double StandardDeviation;
+        }
+
         /// <summary>
         /// Returns the first value, in order of preference, of a given list of <see cref="T"/>, where <see cref="T"/>
         /// are measured by the value returned by the <see cref="valueSelector"/>.
@@ -119,7 +133,7 @@ namespace Trakx.Utils.Extensions
         /// <param name="valueSelector">Function used to select the value on which to base the statistics used to pick a value.</param>
         /// <param name="maxStandardDeviations">Maximum number of standard deviation on which to base the selection. Beyond that value, a
         /// preferred value is rejected and the next preferred one will be evaluated.</param>
-        public static T SelectPreferenceWithMaxDeviationThreshold<T>(this IEnumerable<T> preferences,
+        public static SelectionWithMeanStandardDeviation<T> SelectPreferenceWithMaxDeviationThreshold<T>(this IEnumerable<T> preferences,
             Func<T, double> valueSelector, double maxStandardDeviations = 1.5)
         {
             var enumerable = preferences.ToList();
@@ -128,7 +142,7 @@ namespace Trakx.Utils.Extensions
             foreach (var preference in enumerable)
             {
                 if (Math.Abs(valueSelector(preference) - mean) < maxStandardDeviations * standardDeviation)
-                    return preference;
+                    return new SelectionWithMeanStandardDeviation<T>(preference, mean, standardDeviation);
             }
 
             throw new InvalidDataException($"Failed to find a valid value from list within {maxStandardDeviations} " +
