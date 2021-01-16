@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using FluentAssertions;
+using FluentAssertions.Primitives;
 using MathNet.Numerics.Statistics;
 using Trakx.Utils.Extensions;
 using Xunit;
@@ -48,12 +49,8 @@ namespace Trakx.Utils.Tests
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_throw_when_asked_and_no_value_matches()
         {
-            var (mean, standardDeviation) = _distribution.MeanStandardDeviation();
-            var maxStandardDeviation = 0.01;
+            var maxStandardDeviation = GetTooStrictMaxStandardDeviation();
 
-            _distribution.Select(x => Math.Abs(x - mean)).All(d => d > standardDeviation * maxStandardDeviation)
-                .Should().BeTrue();
-            
             var selectionAction = new Action(() => _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation, true));
 
             selectionAction.Should().Throw<InvalidDataException>();
@@ -62,17 +59,34 @@ namespace Trakx.Utils.Tests
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_when_not_asked_and_no_value_matches()
         {
+            var maxStandardDeviation = GetTooStrictMaxStandardDeviation();
+
+            var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
+                () => _distribution.Select(x => new double?(x))
+                    .SelectPreferenceWithMaxDeviationThreshold(x => x!.Value, maxStandardDeviation));
+
+            selectionAction.Should().NotThrow<Exception>();
+            selectionAction.Invoke().Selection.Should().Be(1);
+        }
+
+        private double GetTooStrictMaxStandardDeviation()
+        {
             var (mean, standardDeviation) = _distribution.MeanStandardDeviation();
             var maxStandardDeviation = 0.01;
 
             _distribution.Select(x => Math.Abs(x - mean)).All(d => d > standardDeviation * maxStandardDeviation)
                 .Should().BeTrue();
+            return maxStandardDeviation;
+        }
 
-            var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double>>(
-                () => _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation));
+        [Fact]
+        public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_empy_sets()
+        {
+            var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
+                () => new double?[0].SelectPreferenceWithMaxDeviationThreshold(x => x ?? 0, 10));
 
             selectionAction.Should().NotThrow<Exception>();
-            selectionAction.Invoke().Selection.Should().Be(_distribution[0]);
+            selectionAction.Invoke().Selection.Should().Be(null);
         }
 
         [Fact]

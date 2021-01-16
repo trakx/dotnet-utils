@@ -110,14 +110,14 @@ namespace Trakx.Utils.Extensions
 
         public readonly struct SelectionWithMeanStandardDeviation<T>
         {
-            public SelectionWithMeanStandardDeviation(T selection, double mean, double standardDeviation)
+            public SelectionWithMeanStandardDeviation(T? selection, double mean, double standardDeviation)
             {
                 Selection = selection;
                 Mean = mean;
                 StandardDeviation = standardDeviation;
             }
 
-            public readonly T Selection;
+            public readonly T? Selection;
             public readonly double Mean;
             public readonly double StandardDeviation;
         }
@@ -127,28 +127,40 @@ namespace Trakx.Utils.Extensions
         /// are measured by the value returned by the <see cref="valueSelector"/>.
         /// Useful for choosing a price from a list of quotes by different market data providers, one of which can
         /// return an erroneous quote.
+        /// If no match is found below <see cref="maxStandardDeviations"/>, the one with the lowest standard deviation is returned.
         /// </summary>
         /// <typeparam name="T">Type of the items that are being sorter by preference.</typeparam>
         /// <param name="preferences">List of items to choose from, ordered by preference.</param>
         /// <param name="valueSelector">Function used to select the value on which to base the statistics used to pick a value.</param>
         /// <param name="maxStandardDeviations">Maximum number of standard deviation on which to base the selection. Beyond that value, a
         /// preferred value is rejected and the next preferred one will be evaluated.</param>
-        public static SelectionWithMeanStandardDeviation<T> SelectPreferenceWithMaxDeviationThreshold<T>(this IEnumerable<T> preferences,
+        /// <param name="throwIfNoMatchFound">False by default, allows the method to throw if no match under <see cref="maxStandardDeviations"/>
+        /// is found.</param>
+        public static SelectionWithMeanStandardDeviation<T?> SelectPreferenceWithMaxDeviationThreshold<T>(this IEnumerable<T> preferences,
             Func<T, double> valueSelector, double maxStandardDeviations = 1.5, bool throwIfNoMatchFound = false)
         {
             var preferenceList = preferences.ToList();
             var (mean, standardDeviation) = preferenceList.Select(valueSelector).MeanStandardDeviation();
-            
+            if(double.IsNaN(mean) || double.IsNaN(standardDeviation)) 
+                return new SelectionWithMeanStandardDeviation<T?>(default, mean, standardDeviation);
+
+            var minimumDeviation = double.MaxValue;
+            var leastDeviated = default(T?);
             foreach (var preference in preferenceList)
             {
-                if (Math.Abs(valueSelector(preference) - mean) < maxStandardDeviations * standardDeviation)
-                    return new SelectionWithMeanStandardDeviation<T>(preference, mean, standardDeviation);
+                var deviation = Math.Abs(valueSelector(preference) - mean);
+                if (deviation < maxStandardDeviations * standardDeviation)
+                    return new SelectionWithMeanStandardDeviation<T?>(preference, mean, standardDeviation);
+
+                if (deviation > minimumDeviation) continue;
+                minimumDeviation = deviation;
+                leastDeviated = preference;
             }
 
             if(throwIfNoMatchFound) throw new InvalidDataException($"Failed to find a valid value from list within {maxStandardDeviations} " +
                 $"standard deviations of the mean, with mean {mean} and standardDeviation {standardDeviation}");
 
-            return new SelectionWithMeanStandardDeviation<T>(preferenceList[0], mean, standardDeviation);
+            return new SelectionWithMeanStandardDeviation<T?>(leastDeviated, mean, standardDeviation);
         }
 
         public static string ToCsvDistinctList<T>(this IEnumerable<T> items, bool spacing = false)
