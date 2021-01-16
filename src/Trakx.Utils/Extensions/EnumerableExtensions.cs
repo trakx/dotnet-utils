@@ -134,19 +134,21 @@ namespace Trakx.Utils.Extensions
         /// <param name="maxStandardDeviations">Maximum number of standard deviation on which to base the selection. Beyond that value, a
         /// preferred value is rejected and the next preferred one will be evaluated.</param>
         public static SelectionWithMeanStandardDeviation<T> SelectPreferenceWithMaxDeviationThreshold<T>(this IEnumerable<T> preferences,
-            Func<T, double> valueSelector, double maxStandardDeviations = 1.5)
+            Func<T, double> valueSelector, double maxStandardDeviations = 1.5, bool throwIfNoMatchFound = false)
         {
-            var enumerable = preferences.ToList();
-            var (mean, standardDeviation) = enumerable.Select(valueSelector).MeanStandardDeviation();
+            var preferenceList = preferences.ToList();
+            var (mean, standardDeviation) = preferenceList.Select(valueSelector).MeanStandardDeviation();
             
-            foreach (var preference in enumerable)
+            foreach (var preference in preferenceList)
             {
                 if (Math.Abs(valueSelector(preference) - mean) < maxStandardDeviations * standardDeviation)
                     return new SelectionWithMeanStandardDeviation<T>(preference, mean, standardDeviation);
             }
 
-            throw new InvalidDataException($"Failed to find a valid value from list within {maxStandardDeviations} " +
-                            $"standard deviations of the mean, with mean {mean} and standardDeviation {standardDeviation}");
+            if(throwIfNoMatchFound) throw new InvalidDataException($"Failed to find a valid value from list within {maxStandardDeviations} " +
+                $"standard deviations of the mean, with mean {mean} and standardDeviation {standardDeviation}");
+
+            return new SelectionWithMeanStandardDeviation<T>(preferenceList[0], mean, standardDeviation);
         }
 
         public static string ToCsvDistinctList<T>(this IEnumerable<T> items, bool spacing = false)

@@ -10,49 +10,69 @@ namespace Trakx.Utils.Tests
 {
     public class EnumerableExtensionsTests
     {
+        private readonly double[] _distribution;
+
+        public EnumerableExtensionsTests()
+        {
+            _distribution = new [] {1.3, 1.2, 1.0, 0.9, 0.8, 0.8, 1.2};
+        }
+
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_choose_first_value_if_not_too_deviant()
         {
-            var numbers = new [] {1.0, 1.3, 1.2, 0.9, 0.8, 0.8, 1.2};
-            var (mean, standardDeviation) = numbers.MeanStandardDeviation();
+            var (mean, standardDeviation) = _distribution.MeanStandardDeviation();
             
-            Math.Abs(numbers[0] - mean).Should().BeLessOrEqualTo(standardDeviation);
+            Math.Abs(_distribution[0] - mean).Should().BeLessOrEqualTo(3 * standardDeviation);
 
-            var selection = numbers.SelectPreferenceWithMaxDeviationThreshold(x => x, 1);
+            var selection = _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, 3);
             
-            selection.Selection.Should().Be(numbers[0]);
+            selection.Selection.Should().Be(_distribution[0]);
             selection.Mean.Should().BeApproximately(1.0285714285714285, double.Epsilon);
-            selection.StandardDeviation.Should().BeApproximately(0.20586634591635516, double.Epsilon);
+            selection.StandardDeviation.Should().BeApproximately(0.20586634591635514, double.Epsilon);
         }
 
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_choose_first_values_if_too_deviant()
         {
-            var numbers = new [] { 1.3, 1.2, 1.0, 0.9, 0.8, 0.8, 1.2 };
-            var (mean, standardDeviation) = numbers.MeanStandardDeviation();
+            var (mean, standardDeviation) = _distribution.MeanStandardDeviation();
             var maxStandardDeviation = 0.5;
 
-            Math.Abs(numbers[0] - mean).Should().BeGreaterOrEqualTo(standardDeviation * maxStandardDeviation);
-            Math.Abs(numbers[1] - mean).Should().BeGreaterOrEqualTo(standardDeviation * maxStandardDeviation);
+            Math.Abs(_distribution[0] - mean).Should().BeGreaterOrEqualTo(standardDeviation * maxStandardDeviation);
+            Math.Abs(_distribution[1] - mean).Should().BeGreaterOrEqualTo(standardDeviation * maxStandardDeviation);
 
-            var selection = numbers.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation);
+            var selection = _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation);
 
-            selection.Selection.Should().Be(numbers[2]);
+            selection.Selection.Should().Be(_distribution[2]);
         }
 
         [Fact]
-        public void SelectPreferenceWithMaxDeviationThreshold_should_throw_when_no_value_matches()
+        public void SelectPreferenceWithMaxDeviationThreshold_should_throw_when_asked_and_no_value_matches()
         {
-            var numbers = new [] { 1.3, 1.2, 1.0, 0.9, 0.8, 0.8, 1.2 };
-            var (mean, standardDeviation) = numbers.MeanStandardDeviation();
+            var (mean, standardDeviation) = _distribution.MeanStandardDeviation();
             var maxStandardDeviation = 0.01;
 
-            numbers.Select(x => Math.Abs(x - mean)).All(d => d > standardDeviation * maxStandardDeviation)
+            _distribution.Select(x => Math.Abs(x - mean)).All(d => d > standardDeviation * maxStandardDeviation)
                 .Should().BeTrue();
             
-            var selectionAction = new Action(() => numbers.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation));
+            var selectionAction = new Action(() => _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation, true));
 
             selectionAction.Should().Throw<InvalidDataException>();
+        }
+
+        [Fact]
+        public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_when_not_asked_and_no_value_matches()
+        {
+            var (mean, standardDeviation) = _distribution.MeanStandardDeviation();
+            var maxStandardDeviation = 0.01;
+
+            _distribution.Select(x => Math.Abs(x - mean)).All(d => d > standardDeviation * maxStandardDeviation)
+                .Should().BeTrue();
+
+            var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double>>(
+                () => _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation));
+
+            selectionAction.Should().NotThrow<Exception>();
+            selectionAction.Invoke().Selection.Should().Be(_distribution[0]);
         }
 
         [Fact]
