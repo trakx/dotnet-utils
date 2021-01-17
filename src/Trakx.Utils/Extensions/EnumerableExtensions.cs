@@ -157,10 +157,11 @@ namespace Trakx.Utils.Extensions
                 leastDeviated = preference;
             }
 
-            if(throwIfNoMatchFound) throw new InvalidDataException($"Failed to find a valid value from list within {maxStandardDeviations} " +
-                $"standard deviations of the mean, with mean {mean} and standardDeviation {standardDeviation}");
-
-            return new SelectionWithMeanStandardDeviation<T?>(leastDeviated, mean, standardDeviation);
+            return throwIfNoMatchFound
+                ? throw new InvalidDataException(
+                    $"Failed to find a valid value from list within {maxStandardDeviations} " +
+                    $"standard deviations of the mean, with mean {mean} and standardDeviation {standardDeviation}")
+                : new SelectionWithMeanStandardDeviation<T?>(leastDeviated, mean, standardDeviation);
         }
 
         public static string ToCsvDistinctList<T>(this IEnumerable<T> items, bool spacing = false)

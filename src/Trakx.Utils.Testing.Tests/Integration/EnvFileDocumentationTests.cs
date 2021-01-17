@@ -9,36 +9,48 @@ using Xunit.Abstractions;
 
 namespace Trakx.Utils.Testing.Tests.Integration
 {
-    public class FakeConfiguration
+    internal class FakeConfiguration
     {
         [SecretEnvironmentVariable("SecretAbc")]
-        public string SecretString { get; set; }
+        public string? SecretString { get; set; }
 
         [SecretEnvironmentVariable("Secret123")]
-        public int SecretNumber { get; set; }
+        public int? SecretNumber { get; set; }
 
-        private string NotSecret { get; set; }
+#pragma warning disable S1144, IDE0051 // Unused private types or members should be removed
+        private string? NotSecret { get; set; }
+#pragma warning restore S1144, IDE0051 // Unused private types or members should be removed
 
+    }
+
+    public class EnvFileDocumentationUpdater : EnvFileDocumentationUpdaterBase
+    {
+        public EnvFileDocumentationUpdater(ITestOutputHelper output, IReadmeEditor? editor = null)
+            : base(output, editor ?? Substitute.For<IReadmeEditor>())
+        {
+            Editor.ExtractReadmeContent(Arg.Any<string>()).Returns(
+                "```secretsEnvVariables" + Environment.NewLine +
+                "FakeConfiguration__SecretAbc=********" + Environment.NewLine +
+                "FakeConfiguration__Secret123=********" + Environment.NewLine +
+                "```" + Environment.NewLine);
+        }
     }
 
     public class EnvFileDocumentationUpdaterTests
     {
-        private readonly ITestOutputHelper _output;
-        private readonly EnvFileDocumentationUpdater _updater;
+        private readonly EnvFileDocumentationUpdaterBase _updater;
         private readonly IReadmeEditor _readmeEditor;
 
         public EnvFileDocumentationUpdaterTests(ITestOutputHelper output)
         {
-            _output = output;
-
             _readmeEditor = Substitute.For<IReadmeEditor>();
-            _updater = new EnvFileDocumentationUpdater(_output, _readmeEditor);
+            _updater = new EnvFileDocumentationUpdater(output, _readmeEditor);
         }
 
         [Fact]
         public async Task UpdateEnvFileDocumentation_should_not_update_when_section_does_not_exist()
         {
-            _readmeEditor.ExtractReadmeContent(null).ReturnsForAnyArgs(
+            _readmeEditor.ExtractReadmeContent(Arg.Any<string>()).ReturnsForAnyArgs(
                 "## Existing Section" + Environment.NewLine +
                 "with a paragraph, and some text" + Environment.NewLine);
 
@@ -64,7 +76,7 @@ namespace Trakx.Utils.Testing.Tests.Integration
                 existingSecret + Environment.NewLine +
                 "```" + Environment.NewLine;
             
-            _readmeEditor.ExtractReadmeContent(null).ReturnsForAnyArgs(
+            _readmeEditor.ExtractReadmeContent(Arg.Any<string>()).ReturnsForAnyArgs(
                 readmeContent);
 
             var success = await _updater.UpdateEnvFileDocumentation();

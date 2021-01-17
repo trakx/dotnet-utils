@@ -20,21 +20,19 @@ namespace Trakx.Utils.Extensions
 
         public static bool IsGitRepositoryRoot(this DirectoryInfo? directory)
         {
-            if (directory == null || !directory.Exists) return false;
-            if (directory.GetDirectories(".git").Any(d => d.Name == ".git")
-                && directory.GetDirectories("src").Any(d => d.Name == "src")
-                && directory.GetFiles("README.md").Any(d => d.Name == "README.md")
-                && directory.GetFiles(".gitignore").Any(d => d.Name == ".gitignore"))
-                return true;
-            return false;
+            return directory != null && directory.Exists && 
+                   directory.GetDirectories(".git").Any(d => d.Name == ".git") && 
+                   directory.GetDirectories("src").Any(d => d.Name == "src") &&
+                   directory.GetFiles("README.md").Any(d => d.Name == "README.md") && 
+                   directory.GetFiles(".gitignore").Any(d => d.Name == ".gitignore");
         }
 
         public static string? GetDefaultEnvFilePath(this DirectoryInfo? startingDirectory)
         {
             var directoryInfo = startingDirectory ?? new DirectoryInfo(Assembly.GetExecutingAssembly().Location);
-            if (directoryInfo.TryWalkBackToRepositoryRoot(out var rootDirectory))
-                return Path.Combine(rootDirectory!.FullName, "src", ".env");
-            return null;
+            return directoryInfo.TryWalkBackToRepositoryRoot(out var rootDirectory) 
+                ? Path.Combine(rootDirectory!.FullName, "src", ".env") 
+                : null;
         }
     }
 }

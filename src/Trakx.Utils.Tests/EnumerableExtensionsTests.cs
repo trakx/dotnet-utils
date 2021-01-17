@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using FluentAssertions;
-using FluentAssertions.Primitives;
 using MathNet.Numerics.Statistics;
 using Trakx.Utils.Extensions;
 using Xunit;
@@ -80,10 +79,10 @@ namespace Trakx.Utils.Tests
         }
 
         [Fact]
-        public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_empy_sets()
+        public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_empty_sets()
         {
             var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
-                () => new double?[0].SelectPreferenceWithMaxDeviationThreshold(x => x ?? 0, 10));
+                () =>  Array.Empty<double?>().SelectPreferenceWithMaxDeviationThreshold(x => x ?? 0, 10));
 
             selectionAction.Should().NotThrow<Exception>();
             selectionAction.Invoke().Selection.Should().Be(null);
