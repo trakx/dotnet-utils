@@ -115,7 +115,7 @@ namespace Trakx.Utils.Testing
         {
             foreach (var envVar in expectedEnvVars)
             {
-                builder.AppendLine($"{envVar}=********");
+                builder.AppendLine(envVar);
             }
             builder.AppendLine(string.Empty);
         }
