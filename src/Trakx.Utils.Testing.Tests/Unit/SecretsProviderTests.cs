@@ -37,7 +37,7 @@ namespace Trakx.Utils.Testing.Tests.Unit
 
         private class TestSecrets
         {
-            [ReadmeDocument("env_var_name")]
+            [SecretEnvironmentVariable("env_var_name")]
             public string? EnvironmentVar { get; set; }
         }
     }

@@ -27,7 +27,7 @@ namespace Trakx.Utils.Testing
 
             foreach (var property in typeProperties)
             {
-                if (property.GetCustomAttribute(typeof(ReadmeDocumentAttribute)) is ReadmeDocumentAttribute attribute)
+                if (property.GetCustomAttribute(typeof(SecretEnvironmentVariableAttribute)) is SecretEnvironmentVariableAttribute attribute)
                 {
                     property.SetValue(result, GetEnvironmentVariable(attribute.VarName));
                 }

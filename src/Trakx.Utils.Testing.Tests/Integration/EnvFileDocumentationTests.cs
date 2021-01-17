@@ -1,16 +1,91 @@
-﻿using Xunit.Abstractions;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using FluentAssertions;
+using NSubstitute;
+using Trakx.Utils.Attributes;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace Trakx.Utils.Testing.Tests.Integration
 {
-    /// <summary>
-    /// This template should be added to test suites of projects which need
-    /// secrets to be provided by environment variables. It will run an inherited test
-    /// that creates a .env file template.
-    /// </summary>
-    /// <remarks>This will not work if being added to several projects in the same solution, as
-    /// one run will create a file the overwrites the ones created by other runs.</remarks>
-    public class EnvFileDocumentationTests : EnvFileDocumentationCreator
+    internal class FakeConfiguration
     {
-        public EnvFileDocumentationTests(ITestOutputHelper output) : base(output) { }
+        [SecretEnvironmentVariable("SecretAbc")]
+        public string? SecretString { get; set; }
+
+        [SecretEnvironmentVariable("Secret123")]
+        public int? SecretNumber { get; set; }
+
+#pragma warning disable S1144, IDE0051 // Unused private types or members should be removed
+        private string? NotSecret { get; set; }
+#pragma warning restore S1144, IDE0051 // Unused private types or members should be removed
+
+    }
+
+    public class EnvFileDocumentationUpdater : EnvFileDocumentationUpdaterBase
+    {
+        public EnvFileDocumentationUpdater(ITestOutputHelper output, IReadmeEditor? editor = null)
+            : base(output, editor ?? Substitute.For<IReadmeEditor>())
+        {
+            Editor.ExtractReadmeContent(Arg.Any<string>()).Returns(
+                "```secretsEnvVariables" + Environment.NewLine +
+                "FakeConfiguration__SecretAbc=********" + Environment.NewLine +
+                "FakeConfiguration__Secret123=********" + Environment.NewLine +
+                "```" + Environment.NewLine);
+        }
+    }
+
+    public class EnvFileDocumentationUpdaterTests
+    {
+        private readonly EnvFileDocumentationUpdaterBase _updater;
+        private readonly IReadmeEditor _readmeEditor;
+
+        public EnvFileDocumentationUpdaterTests(ITestOutputHelper output)
+        {
+            _readmeEditor = Substitute.For<IReadmeEditor>();
+            _updater = new EnvFileDocumentationUpdater(output, _readmeEditor);
+        }
+
+        [Fact]
+        public async Task UpdateEnvFileDocumentation_should_not_update_when_section_does_not_exist()
+        {
+            _readmeEditor.ExtractReadmeContent(Arg.Any<string>()).ReturnsForAnyArgs(
+                "## Existing Section" + Environment.NewLine +
+                "with a paragraph, and some text" + Environment.NewLine);
+
+            var success = await _updater.UpdateEnvFileDocumentation();
+            success.Should().BeFalse();
+        }
+
+        [Fact]
+        public async Task UpdateEnvFileDocumentation_should_update_when_section_exist()
+        {
+            var existingSecret = "FakeConfiguration__SecretAbc=********";
+            var secretToBeAdded = "FakeConfiguration__Secret123=********";
+
+            var textToKeep = 
+                "## Existing Section" + Environment.NewLine +
+                "with a paragraph, and some text" + Environment.NewLine +
+                Environment.NewLine + Environment.NewLine +
+                "## Creating your local .env file" + Environment.NewLine +
+                "In order to be able to run some integration tests, you should create a `.env` file in the `src` folder with the following variables:" + Environment.NewLine +
+                "```secretsEnvVariables" + Environment.NewLine;
+            var readmeContent =
+                textToKeep +
+                existingSecret + Environment.NewLine +
+                "```" + Environment.NewLine;
+            
+            _readmeEditor.ExtractReadmeContent(Arg.Any<string>()).ReturnsForAnyArgs(
+                readmeContent);
+
+            var success = await _updater.UpdateEnvFileDocumentation();
+            success.Should().BeTrue();
+
+            await _readmeEditor.Received(1).UpdateReadmeContent(Arg.Any<string>(), Arg.Any<string>());
+            var firstArgument = _readmeEditor.ReceivedCalls()
+                .Single(c => c.GetMethodInfo().Name == nameof(_readmeEditor.UpdateReadmeContent)).GetArguments()[1] as string;
+            firstArgument.Should().Contain(secretToBeAdded);
+        }
     }
 }
