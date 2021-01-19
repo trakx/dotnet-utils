@@ -29,7 +29,7 @@ namespace Trakx.Utils.Testing
             {
                 if (property.GetCustomAttribute(typeof(SecretEnvironmentVariableAttribute)) is SecretEnvironmentVariableAttribute attribute)
                 {
-                    property.SetValue(result, GetEnvironmentVariable(attribute.VarName));
+                    property.SetValue(result, GetEnvironmentVariable(attribute.VarName ?? $"{typeof(T).Name}__{property.Name}"));
                 }
             }
 

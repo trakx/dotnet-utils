@@ -17,6 +17,9 @@ namespace Trakx.Utils.Testing.Tests.Integration
         [SecretEnvironmentVariable("Secret123")]
         public int? SecretNumber { get; set; }
 
+        [SecretEnvironmentVariable]
+        public string? ImplicitlyNamedSecret { get; set; }
+
 #pragma warning disable S1144, IDE0051 // Unused private types or members should be removed
         private string? NotSecret { get; set; }
 #pragma warning restore S1144, IDE0051 // Unused private types or members should be removed
@@ -30,8 +33,9 @@ namespace Trakx.Utils.Testing.Tests.Integration
         {
             Editor.ExtractReadmeContent(Arg.Any<string>()).Returns(
                 "```secretsEnvVariables" + Environment.NewLine +
-                "FakeConfiguration__SecretAbc=********" + Environment.NewLine +
-                "FakeConfiguration__Secret123=********" + Environment.NewLine +
+                "FakeConfiguration__ImplicitlyNamedSecret=********" + Environment.NewLine +
+                "Secret123=********" + Environment.NewLine +
+                "SecretAbc=********" + Environment.NewLine +
                 "```" + Environment.NewLine);
         }
     }
@@ -62,7 +66,8 @@ namespace Trakx.Utils.Testing.Tests.Integration
         public async Task UpdateEnvFileDocumentation_should_update_when_section_exist()
         {
             var existingSecret = "FakeConfiguration__SecretAbc=********";
-            var secretToBeAdded = "FakeConfiguration__Secret123=********";
+            var secretsToBeAdded = "FakeConfiguration__ImplicitlyNamedSecret=********" + Environment.NewLine +
+                    "Secret123=********" + Environment.NewLine;
 
             var textToKeep = 
                 "## Existing Section" + Environment.NewLine +
@@ -85,7 +90,7 @@ namespace Trakx.Utils.Testing.Tests.Integration
             await _readmeEditor.Received(1).UpdateReadmeContent(Arg.Any<string>(), Arg.Any<string>());
             var firstArgument = _readmeEditor.ReceivedCalls()
                 .Single(c => c.GetMethodInfo().Name == nameof(_readmeEditor.UpdateReadmeContent)).GetArguments()[1] as string;
-            firstArgument.Should().Contain(secretToBeAdded);
+            firstArgument.Should().Contain(secretsToBeAdded);
         }
     }
 }
