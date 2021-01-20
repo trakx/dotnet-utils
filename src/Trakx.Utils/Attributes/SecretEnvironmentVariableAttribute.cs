@@ -11,5 +11,10 @@ namespace Trakx.Utils.Attributes
         {
             VarName = varName;
         }
+
+        public SecretEnvironmentVariableAttribute(string configurationTypeName, string propertyName)
+        {
+            VarName = $"{configurationTypeName}__{propertyName}";
+        }
     }
 }
