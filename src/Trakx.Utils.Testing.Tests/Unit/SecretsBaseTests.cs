@@ -15,11 +15,13 @@ namespace Trakx.Utils.Testing.Tests.Unit
         {
             SetEnvironmentVariable("env_var_name", "coucou");
             SetEnvironmentVariable($"{nameof(TestSecrets)}__{nameof(TestSecrets.ImplicitlyNamed)}", "hello");
+            SetEnvironmentVariable("SomeConfigClassName__SomePropertyName", "ola");
 
             var secrets = new TestSecrets();
 
             secrets.EnvironmentVar.Should().Be("coucou");
             secrets.ImplicitlyNamed.Should().Be("hello");
+            secrets.ExplicitTypePropertyNamedSecret.Should().Be("ola");
         }
 
         [Fact, RunOrder(1)]
@@ -37,6 +39,9 @@ namespace Trakx.Utils.Testing.Tests.Unit
 
             [SecretEnvironmentVariable]
             public string? ImplicitlyNamed { get; init; }
+
+            [SecretEnvironmentVariable("SomeConfigClassName", "SomePropertyName")]
+            public string? ExplicitTypePropertyNamedSecret { get; set; }
         }
     }
 }

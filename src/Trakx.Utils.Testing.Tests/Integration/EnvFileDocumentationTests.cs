@@ -20,6 +20,10 @@ namespace Trakx.Utils.Testing.Tests.Integration
         [SecretEnvironmentVariable]
         public string? ImplicitlyNamedSecret { get; set; }
 
+
+        [SecretEnvironmentVariable("SomeConfigClassName", "SomePropertyName")]
+        public string? ExplicitTypePropertyNamedSecret { get; set; }
+
 #pragma warning disable S1144, IDE0051 // Unused private types or members should be removed
         private string? NotSecret { get; set; }
 #pragma warning restore S1144, IDE0051 // Unused private types or members should be removed
@@ -36,6 +40,7 @@ namespace Trakx.Utils.Testing.Tests.Integration
                 "FakeConfiguration__ImplicitlyNamedSecret=********" + Environment.NewLine +
                 "Secret123=********" + Environment.NewLine +
                 "SecretAbc=********" + Environment.NewLine +
+                "SomeConfigClassName__SomePropertyName=********" + Environment.NewLine +
                 "```" + Environment.NewLine);
         }
     }
@@ -65,8 +70,10 @@ namespace Trakx.Utils.Testing.Tests.Integration
         [Fact]
         public async Task UpdateEnvFileDocumentation_should_update_when_section_exist()
         {
-            var existingSecret = "FakeConfiguration__SecretAbc=********";
-            var secretsToBeAdded = "FakeConfiguration__ImplicitlyNamedSecret=********" + Environment.NewLine +
+            var existingSecret = "FakeConfiguration__SecretAbc=********" + Environment.NewLine +
+                                 "SomeConfigClassName__SomePropertyName=********";
+            var secretsToBeAdded = 
+                "FakeConfiguration__ImplicitlyNamedSecret=********" + Environment.NewLine +
                     "Secret123=********" + Environment.NewLine;
 
             var textToKeep = 
