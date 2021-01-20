@@ -4,24 +4,22 @@ using System.Linq;
 using System.Reflection;
 using Trakx.Utils.Attributes;
 using Trakx.Utils.Extensions;
-using Trakx.Utils.Testing.Interfaces;
 using static System.Environment;
-
+ 
 namespace Trakx.Utils.Testing
 {
-    public class SecretsProvider<T> : ISecretsProvider<T> where T : new()
+    /// <summary>
+    /// Inherit from this class to create a class which can initialise its
+    /// SecretEnvironmentVariable decorated properties with environment variables.
+    /// </summary>
+    public abstract record SecretsBase
     {
-        public SecretsProvider()
+        protected SecretsBase()
         {
             var envFilePath = DirectoryInfoExtensions.GetDefaultEnvFilePath(null);
             if (envFilePath != null) Env.Load(Path.Combine(envFilePath));
-        }
 
-        public T GetSecrets()
-        {
-            var result = new T();
-
-            var typeProperties = typeof(T)
+            var typeProperties = GetType()
                 .GetProperties()
                 .ToList();
 
@@ -29,11 +27,9 @@ namespace Trakx.Utils.Testing
             {
                 if (property.GetCustomAttribute(typeof(SecretEnvironmentVariableAttribute)) is SecretEnvironmentVariableAttribute attribute)
                 {
-                    property.SetValue(result, GetEnvironmentVariable(attribute.VarName ?? $"{typeof(T).Name}__{property.Name}"));
+                    property.SetValue(this, GetEnvironmentVariable(attribute.VarName ?? $"{GetType().Name}__{property.Name}"));
                 }
             }
-
-            return result;
         }
     }
 }
