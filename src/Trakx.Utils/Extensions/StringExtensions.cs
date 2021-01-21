@@ -25,6 +25,14 @@ namespace Trakx.Utils.Extensions
         {
             return BitConverter.ToString(array).Replace("-", "").ToLowerInvariant();
         }
+        
+        public static string? FirstCharToUpper(this string? input) =>
+            input switch
+            {
+                null => null,
+                "" => "",
+                _ => input.First().ToString().ToUpper() + input.Substring(1)
+            };
 
         public static List<string> SplitCsvToLowerCaseDistinctList(this string csvString)
         {

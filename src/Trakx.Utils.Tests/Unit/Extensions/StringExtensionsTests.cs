@@ -28,5 +28,20 @@ namespace Trakx.Utils.Tests.Unit.Extensions
             "\tabc, def, ghi,GHI,Abc,hello ".SplitCsvToLowerCaseDistinctList().Should()
                 .BeEquivalentTo(new List<string> { "abc", "def", "ghi", "hello" });
         }
+
+        [Theory]
+        [InlineData(null, null)]
+        [InlineData("", "")]
+        [InlineData("a", "A")]
+        [InlineData("A", "A")]
+        [InlineData("1", "1")]
+        [InlineData("_a", "_a")]
+        [InlineData("AbC", "AbC")]
+        [InlineData("def", "Def")]
+        [InlineData("1bc", "1bc")]
+        public void FirstCharToUpperCase_should_not_error(string input, string expectedOutput)
+        {
+            input.FirstCharToUpper().Should().Be(expectedOutput);
+        }
     }
 }
