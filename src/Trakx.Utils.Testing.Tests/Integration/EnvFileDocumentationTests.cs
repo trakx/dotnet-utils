@@ -32,16 +32,20 @@ namespace Trakx.Utils.Testing.Tests.Integration
 
     public class EnvFileDocumentationUpdater : EnvFileDocumentationUpdaterBase
     {
-        public EnvFileDocumentationUpdater(ITestOutputHelper output, IReadmeEditor? editor = null)
+        public EnvFileDocumentationUpdater(ITestOutputHelper output, IReadmeEditor? editor = null, bool simulateExistingValidFile = true)
             : base(output, editor ?? Substitute.For<IReadmeEditor>())
         {
+            if(!simulateExistingValidFile) return;
+            var fakeReadmeContent = "```secretsEnvVariables" + Environment.NewLine +
+                                                         "FakeConfiguration__ImplicitlyNamedSecret=********" + Environment.NewLine +
+                                                         "Secret123=********" + Environment.NewLine +
+                                                         "SecretAbc=********" + Environment.NewLine +
+                                                         "SomeConfigClassName__SomePropertyName=********" + Environment.NewLine +
+                                                         "```" + Environment.NewLine;
             Editor.ExtractReadmeContent(Arg.Any<string>()).Returns(
-                "```secretsEnvVariables" + Environment.NewLine +
-                "FakeConfiguration__ImplicitlyNamedSecret=********" + Environment.NewLine +
-                "Secret123=********" + Environment.NewLine +
-                "SecretAbc=********" + Environment.NewLine +
-                "SomeConfigClassName__SomePropertyName=********" + Environment.NewLine +
-                "```" + Environment.NewLine);
+                fakeReadmeContent);
+            Editor.When(e => e.UpdateReadmeContent(Arg.Any<string>(), Arg.Any<string>()))
+                .Do(ci => (ci[1] as string).Should().Be(fakeReadmeContent, "the content should not change."));
         }
     }
 
@@ -53,7 +57,7 @@ namespace Trakx.Utils.Testing.Tests.Integration
         public EnvFileDocumentationUpdaterTests(ITestOutputHelper output)
         {
             _readmeEditor = Substitute.For<IReadmeEditor>();
-            _updater = new EnvFileDocumentationUpdater(output, _readmeEditor);
+            _updater = new EnvFileDocumentationUpdater(output, _readmeEditor, false);
         }
 
         [Fact]

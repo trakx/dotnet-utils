@@ -45,7 +45,7 @@ namespace Trakx.Utils.Testing
         private readonly ITestOutputHelper _output;
         private readonly IReadmeEditor _editor;
         protected IReadmeEditor Editor => _editor;
-        private static readonly Regex DotEnvSection = new Regex(@"```secretsEnvVariables\r?\n(?<envVars>(?<envVar>([\w]+)=(\*)+)\r?\n)+```\r?\n");
+        private static readonly Regex DotEnvSection = new Regex(@"```secretsEnvVariables\r?\n(?<envVars>(?<envVar>([\w]+)=(\*)+\r?\n)+)```\r?\n");
         private readonly PathAssemblyResolver _resolver;
         protected readonly Assembly ImplementingAssembly;
 
