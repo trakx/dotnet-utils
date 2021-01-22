@@ -14,7 +14,7 @@ namespace Trakx.Utils.Serialization.Converters
         }
         public static decimal ToDecimal(this byte[] bytes)
         {
-            if (bytes.Count() != 16) throw new ArgumentOutOfRangeException(nameof(bytes), "A decimal must be created from exactly 16 bytes");
+            if (bytes.Length != 16) throw new ArgumentOutOfRangeException(nameof(bytes), "A decimal must be created from exactly 16 bytes");
             var integers = new int[4];
             for (var i = 0; i <= 15; i += 4)
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MathNet.Numerics.Statistics;
+using Trakx.Utils.Comparers;
 
 namespace Trakx.Utils.Extensions
 {
@@ -169,5 +170,12 @@ namespace Trakx.Utils.Extensions
             var separator = "," + (spacing ? " " : string.Empty);
             return string.Join(separator, items.Select(i => i!.ToString()!.ToLowerInvariant().Trim(' ')).Distinct());
         }
+
+        public static IEnumerable<T?> DistinctBy<T, TKey>(this IEnumerable<T> items, Func<T?, TKey> selector)
+        {
+            var comparer = new SelectorComparer<T?, TKey>(selector!);
+            return items.Distinct(comparer);
+        }
+
     }
 }

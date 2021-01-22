@@ -7,7 +7,7 @@ namespace Trakx.Utils.Attributes
     {
         public override bool IsValid(object? value)
         {
-            if (!(value is string strValue) || string.IsNullOrWhiteSpace(strValue)) return false;
+            if (value is not string strValue || string.IsNullOrWhiteSpace(strValue)) return false;
             if (strValue.IsValidEthereumAddress()) return true;
             
             ErrorMessage = "Must be a valid ethereum address.";

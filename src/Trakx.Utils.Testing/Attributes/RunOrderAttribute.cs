@@ -13,6 +13,6 @@ namespace Trakx.Utils.Testing.Attributes
         /// </summary>
         public double Order { get; }
 
-        public RunOrderAttribute(double priority) => Order = priority;
+        public RunOrderAttribute(double order) => Order = order;
     }
 }
