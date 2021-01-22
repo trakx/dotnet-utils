@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+#pragma warning disable IDE0046 // Convert to conditional expression
 
 namespace Trakx.Utils.Serialization.Converters
 {
@@ -29,8 +30,9 @@ namespace Trakx.Utils.Serialization.Converters
             var value = reader.GetString();
             if (string.IsNullOrEmpty(value)) return default;
             object? result = null;
-            if (_underlyingType != null && (!Enum.TryParse(_underlyingType, value, ignoreCase: false, out result) &&
-                                            !Enum.TryParse(_underlyingType, value, ignoreCase: true, out result)))
+            if (_underlyingType != null 
+                && !Enum.TryParse(_underlyingType, value, ignoreCase: false, out result) 
+                && !Enum.TryParse(_underlyingType, value, ignoreCase: true, out result))
             {
                 throw new JsonException($"Unable to convert \"{value}\" to Enum \"{_underlyingType}\".");
             }

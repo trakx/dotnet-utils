@@ -31,7 +31,7 @@ namespace Trakx.Utils.Extensions
             {
                 null => null,
                 "" => "",
-                _ => input.First().ToString().ToUpper() + input.Substring(1)
+                _ => input.First().ToString().ToUpper() + input[1..]
             };
 
         public static List<string> SplitCsvToLowerCaseDistinctList(this string csvString)
