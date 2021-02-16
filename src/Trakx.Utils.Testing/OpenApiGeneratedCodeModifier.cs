@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Trakx.Utils.Testing.Attributes;
 using Xunit;
 using Xunit.Abstractions;
+#pragma warning disable S2699
 
 namespace Trakx.Utils.Testing
 {
@@ -20,26 +21,24 @@ namespace Trakx.Utils.Testing
         private static readonly string SetPropertyRegex = @"(?<before>[\s]{8}\[Newtonsoft\.Json\.JsonProperty\([^\]]+\]\r?\n[\s]{8}public [^\s]+ [^\s]+ \{ get; )(?<set>set)";
         private static readonly string ClientRegex = @"public partial interface I(?<client>[^\s]+)";
 
-        protected OpenApiGeneratedCodeModifier(ITestOutputHelper output, string? filePath = default)
+        protected OpenApiGeneratedCodeModifier(ITestOutputHelper output, string filePath)
         {
             _output = output;
             _filePath = filePath;
         }
 
         [Fact, RunOrder(1)]
-        public async Task Replace_model_class_by_records(string? filePath = default)
+        public async Task Replace_model_class_by_records()
         {
-            filePath ??= _filePath;
-            var content = await File.ReadAllTextAsync(filePath!).ConfigureAwait(false);
+            var content = await File.ReadAllTextAsync(_filePath!).ConfigureAwait(false);
             content = Regex.Replace(content, ClassDefinitionRegex, "${before}" + "record" + "${after}");
             content = Regex.Replace(content, SetPropertyRegex, "${before}" + "init");
-            await File.WriteAllTextAsync(filePath!, content);
+            await File.WriteAllTextAsync(_filePath!, content);
         }
 
         [Fact, RunOrder(2)]
         public async Task Remove_warnings(string? filePath = default)
         {
-            filePath ??= _filePath;
             var content = await File.ReadAllTextAsync(filePath!).ConfigureAwait(false);
             var existingWarningStart = @"#pragma warning disable 108";
             var warningStartToAdd = @"#pragma warning disable CS0618";
@@ -53,10 +52,9 @@ namespace Trakx.Utils.Testing
         }
 
 
-        [Fact(Skip = "not a test"), RunOrder(3)]
+        [Fact, RunOrder(3)]
         public async Task Output_client_names(string? filePath = default)
         {
-            filePath ??= _filePath;
             var content = await File.ReadAllTextAsync(filePath!).ConfigureAwait(false);
             var clientRegex = new Regex(ClientRegex);
             var clients = clientRegex.Matches(content).Select(m => m.Groups["client"].Value)
@@ -65,3 +63,5 @@ namespace Trakx.Utils.Testing
         }
     }
 }
+
+#pragma warning restore S2699
