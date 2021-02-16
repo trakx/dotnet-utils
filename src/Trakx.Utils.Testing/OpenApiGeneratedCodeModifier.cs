@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 namespace Trakx.Utils.Testing
 {
     [TestCaseOrderer(RunOrderAttributeOrderer.TypeName, RunOrderAttributeOrderer.AssemblyName)]
-    public abstract class OpenApiGeneratedCodeModifier : IClassFixture<List<string>>
+    public abstract class OpenApiGeneratedCodeModifier
     {
         private readonly ITestOutputHelper _output;
         protected List<string> FilePaths { get; } = new ();
