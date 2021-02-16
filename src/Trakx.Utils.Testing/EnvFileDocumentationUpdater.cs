@@ -117,7 +117,6 @@ namespace Trakx.Utils.Testing
             {
                 builder.AppendLine(envVar);
             }
-            builder.AppendLine(string.Empty);
         }
 
         private static void AppendExampleEnvFileDocumentationSection(StringBuilder builder, List<string> expectedEnvVars)
