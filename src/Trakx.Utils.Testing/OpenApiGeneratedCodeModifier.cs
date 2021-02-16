@@ -11,27 +11,25 @@ using Xunit.Abstractions;
 
 namespace Trakx.Utils.Testing
 {
-
     [TestCaseOrderer(RunOrderAttributeOrderer.TypeName, RunOrderAttributeOrderer.AssemblyName)]
     public abstract class OpenApiGeneratedCodeModifier : IClassFixture<List<string>>
     {
         private readonly ITestOutputHelper _output;
-        private readonly List<string> _filePaths;
+        protected List<string> FilePaths { get; } = new ();
 
         private static readonly string ClassDefinitionRegex = @"(?<before>[\s]{4}\[System\.CodeDom\.Compiler\.GeneratedCode\(""NJsonSchema"", [^\]]+\]\r?\n[\s]{4}public partial )(?<class>class)(?<after> [\w]+\s?\r?\n)";
         private static readonly string SetPropertyRegex = @"(?<before>[\s]{8}\[Newtonsoft\.Json\.JsonProperty\([^\]]+\]\r?\n[\s]{8}public [^\s]+ [^\s]+ \{ get; )(?<set>set)";
         private static readonly string ClientRegex = @"public partial interface I(?<client>[^\s]+)";
 
-        protected OpenApiGeneratedCodeModifier(ITestOutputHelper output, List<string> filePaths)
+        protected OpenApiGeneratedCodeModifier(ITestOutputHelper output)
         {
             _output = output;
-            _filePaths = filePaths;
         }
 
         [Fact, RunOrder(1)]
         public async Task Replace_model_class_by_records()
         {
-            foreach (var filePath in _filePaths)
+            foreach (var filePath in FilePaths)
             {
                 var content = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
                 content = Regex.Replace(content, ClassDefinitionRegex, "${before}" + "record" + "${after}");
@@ -43,7 +41,7 @@ namespace Trakx.Utils.Testing
         [Fact, RunOrder(2)]
         public async Task Remove_warnings()
         {
-            foreach (var filePath in _filePaths)
+            foreach (var filePath in FilePaths)
             {
                 var content = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
                 var existingWarningStart = @"#pragma warning disable 108";
@@ -62,7 +60,7 @@ namespace Trakx.Utils.Testing
         [Fact, RunOrder(3)]
         public async Task Output_client_names()
         {
-            foreach (var filePath in _filePaths)
+            foreach (var filePath in FilePaths)
             {
                 var content = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
                 var clientRegex = new Regex(ClientRegex);
