@@ -69,6 +69,19 @@ namespace Trakx.Utils.Testing
                 _output.WriteLine(string.Join(", ", clients.Select(c => $"\"{c}\""))); 
             }
         }
+
+        
+        [Fact, RunOrder(4)]
+        public async Task Do_not_call_send_methods_asynchronously()
+        {
+            foreach (var filePath in FilePaths)
+            {
+                var content = await File.ReadAllTextAsync(filePath).ConfigureAwait(false);
+                content = content.Replace(@"var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);",
+                @"var response_ = client_.Send(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken);");
+                await File.WriteAllTextAsync(filePath, content);
+            }
+        }
     }
 }
 
