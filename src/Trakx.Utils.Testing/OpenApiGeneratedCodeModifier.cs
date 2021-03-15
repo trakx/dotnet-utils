@@ -17,7 +17,7 @@ namespace Trakx.Utils.Testing
         private readonly ITestOutputHelper _output;
         protected List<string> FilePaths { get; } = new ();
 
-        private static readonly string ClassDefinitionRegex = @"(?<before>[\s]{4}\[System\.CodeDom\.Compiler\.GeneratedCode\(""NJsonSchema"", [^\]]+\]\r?\n[\s]{4}public partial )(?<class>class)(?<after> [\w]+\s?\r?\n)";
+        private static readonly string ClassDefinitionRegex = @"(?<before>[\s]{4}\[System\.CodeDom\.Compiler\.GeneratedCode\(""NJsonSchema"", [^\]]+\]\r?\n[\s]{4}public partial )(?<class>class)(?<after> [\w:\s]+\s?\r?\n)";
         private static readonly string SetPropertyRegex = @"(?<before>[\s]{8}\[Newtonsoft\.Json\.JsonProperty\([^\]]+\]\r?\n[\s]{8}public [^\s]+ [^\s]+ \{ get; )(?<set>set)";
         private static readonly string ClientRegex = @"public partial interface I(?<client>[^\s]+)";
 
