@@ -138,10 +138,13 @@ namespace Trakx.Utils.Extensions
         /// <param name="throwIfNoMatchFound">False by default, allows the method to throw if no match under <see cref="maxStandardDeviations"/>
         /// is found.</param>
         public static SelectionWithMeanStandardDeviation<T?> SelectPreferenceWithMaxDeviationThreshold<T>(this IEnumerable<T> preferences,
-            Func<T, double> valueSelector, double maxStandardDeviations = 1.5, bool throwIfNoMatchFound = false)
+            Func<T, double?> valueSelector, double maxStandardDeviations = 1.5, bool throwIfNoMatchFound = false)
         {
-            var preferenceList = preferences.ToList();
-            var (mean, standardDeviation) = preferenceList.Select(valueSelector).MeanStandardDeviation();
+            var preferenceList = preferences.Where(p => !double.IsNaN(valueSelector(p) ?? double.NaN)).ToList();
+
+            if (preferenceList.Count == 1)
+                return new SelectionWithMeanStandardDeviation<T?>(preferenceList[0], valueSelector(preferenceList[0])!.Value, 0);
+            var (mean, standardDeviation) = preferenceList.Select(v => valueSelector(v)!.Value).MeanStandardDeviation();
             if(double.IsNaN(mean) || double.IsNaN(standardDeviation)) 
                 return new SelectionWithMeanStandardDeviation<T?>(default, mean, standardDeviation);
 
@@ -149,7 +152,7 @@ namespace Trakx.Utils.Extensions
             var leastDeviated = default(T?);
             foreach (var preference in preferenceList)
             {
-                var deviation = Math.Abs(valueSelector(preference) - mean);
+                var deviation = Math.Abs(valueSelector(preference)!.Value - mean);
                 if (deviation < maxStandardDeviations * standardDeviation)
                     return new SelectionWithMeanStandardDeviation<T?>(preference, mean, standardDeviation);
 

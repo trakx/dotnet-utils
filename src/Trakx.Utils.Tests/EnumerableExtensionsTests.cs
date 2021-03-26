@@ -88,6 +88,31 @@ namespace Trakx.Utils.Tests
             selectionAction.Invoke().Selection.Should().Be(null);
         }
 
+
+        [Fact]
+        public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_sets_with_one_value()
+        {
+            var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
+                () => new double?[]{ 0.245, double.NaN, null}.SelectPreferenceWithMaxDeviationThreshold(
+                    x => x ?? 0, 10));
+
+            selectionAction.Should().NotThrow<Exception>();
+            selectionAction.Invoke().Selection.Should().Be(0.245);
+        }
+
+        [Fact]
+        public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_sets_with_two_values()
+        {
+            var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
+                () => new double?[] { 0.245, 0.256, null }.SelectPreferenceWithMaxDeviationThreshold(
+                    x => x ?? 0, 10));
+
+            selectionAction.Should().NotThrow<Exception>();
+            selectionAction.Invoke().Selection.Should().Be(0.245);
+        }
+
+
+
         [Fact]
         public void ToCsvDistinctList_should_join_trimmed_lower_cased_ToString_results_with_spacing()
         {
