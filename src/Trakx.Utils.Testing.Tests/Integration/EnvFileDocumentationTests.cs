@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -78,9 +79,11 @@ namespace Trakx.Utils.Testing.Tests.Integration
             var existingSecret = "FakeConfiguration__SecretAbc=********" + Environment.NewLine +
                                  secretFromOtherAssembly +
                                  "SomeConfigClassName__SomePropertyName=********";
-            var secretsToBeAdded =
-                "FakeConfiguration__ImplicitlyNamedSecret=********" + Environment.NewLine +
-                    "Secret123=********" + Environment.NewLine;
+            var secretsToBeAdded = new List<string>
+            {
+                "FakeConfiguration__ImplicitlyNamedSecret=********",
+                "Secret123=********" + Environment.NewLine,
+            };
 
             var textToKeep = 
                 "## Existing Section" + Environment.NewLine +
@@ -103,7 +106,7 @@ namespace Trakx.Utils.Testing.Tests.Integration
             await _readmeEditor.Received(1).UpdateReadmeContent(Arg.Any<string>()).ConfigureAwait(false);
             var firstArgument = _readmeEditor.ReceivedCalls()
                 .Single(c => c.GetMethodInfo().Name == nameof(_readmeEditor.UpdateReadmeContent)).GetArguments()[0] as string;
-            firstArgument.Should().Contain(secretsToBeAdded);
+            secretsToBeAdded.ForEach(s => firstArgument.Should().Contain(s));
             firstArgument.Should().Contain(secretFromOtherAssembly);
         }
     }
