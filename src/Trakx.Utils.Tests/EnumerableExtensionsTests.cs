@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -14,18 +15,18 @@ namespace Trakx.Utils.Tests
 
         public EnumerableExtensionsTests()
         {
-            _distribution = new [] {1.3, 1.2, 1.0, 0.9, 0.8, 0.8, 1.2};
+            _distribution = new[] {1.3, 1.2, 1.0, 0.9, 0.8, 0.8, 1.2};
         }
 
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_choose_first_value_if_not_too_deviant()
         {
             var (mean, standardDeviation) = _distribution.MeanStandardDeviation();
-            
+
             Math.Abs(_distribution[0] - mean).Should().BeLessOrEqualTo(3 * standardDeviation);
 
             var selection = _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, 3);
-            
+
             selection.Selection.Should().Be(_distribution[0]);
             selection.Mean.Should().BeApproximately(1.0285714285714285, double.Epsilon);
             selection.StandardDeviation.Should().BeApproximately(0.20586634591635514, double.Epsilon);
@@ -50,7 +51,8 @@ namespace Trakx.Utils.Tests
         {
             var maxStandardDeviation = GetTooStrictMaxStandardDeviation();
 
-            var selectionAction = new Action(() => _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation, true));
+            var selectionAction = new Action(() =>
+                _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation, true));
 
             selectionAction.Should().Throw<InvalidDataException>();
         }
@@ -82,7 +84,7 @@ namespace Trakx.Utils.Tests
         public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_empty_sets()
         {
             var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
-                () =>  Array.Empty<double?>().SelectPreferenceWithMaxDeviationThreshold(x => x ?? 0, 10));
+                () => Array.Empty<double?>().SelectPreferenceWithMaxDeviationThreshold(x => x ?? 0, 10));
 
             selectionAction.Should().NotThrow<Exception>();
             selectionAction.Invoke().Selection.Should().Be(null);
@@ -93,7 +95,7 @@ namespace Trakx.Utils.Tests
         public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_sets_with_one_value()
         {
             var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
-                () => new double?[]{ 0.245, double.NaN, null}.SelectPreferenceWithMaxDeviationThreshold(
+                () => new double?[] {0.245, double.NaN, null}.SelectPreferenceWithMaxDeviationThreshold(
                     x => x ?? 0, 10));
 
             selectionAction.Should().NotThrow<Exception>();
@@ -104,20 +106,32 @@ namespace Trakx.Utils.Tests
         public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_sets_with_two_values()
         {
             var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
-                () => new double?[] { 0.245, 0.256, null }.SelectPreferenceWithMaxDeviationThreshold(
+                () => new double?[] {0.245, 0.256, null}.SelectPreferenceWithMaxDeviationThreshold(
                     x => x ?? 0, 10));
 
             selectionAction.Should().NotThrow<Exception>();
             selectionAction.Invoke().Selection.Should().Be(0.245);
         }
 
-
-
         [Fact]
         public void ToCsvDistinctList_should_join_trimmed_lower_cased_ToString_results_with_spacing()
         {
             var strings = new[] {"ab ", "def", " klm", "KlM"};
             strings.ToCsvDistinctList(true).Should().Be("ab, def, klm");
+        }
+
+        [Fact]
+        public void SelectLeastDeviatedValue_example_from_real_life_should_not_pick_cryptocompare_valution()
+        {
+            var values = new Dictionary<string, decimal>()
+            {
+                {"CryptoCompare", 0.004720472047204721m},
+                {"Shrimpy", 0.6387407104069606m},
+                {"CoinGecko", 0.6526023201009594m},
+            };
+
+            var selection = values.SelectLeastDeviatedValue(p => (double)p.Value);
+            selection.Selection.Key.Should().NotBe("CryptoCompare");
         }
     }
 }

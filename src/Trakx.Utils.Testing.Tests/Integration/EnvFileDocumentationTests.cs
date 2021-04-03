@@ -30,7 +30,7 @@ namespace Trakx.Utils.Testing.Tests.Integration
 
     }
 
-    public class EnvFileDocumentationUpdater : EnvFileDocumentationUpdaterBase
+    internal class EnvFileDocumentationUpdater : EnvFileDocumentationUpdaterBase
     {
         public EnvFileDocumentationUpdater(ITestOutputHelper output, IReadmeEditor? editor = null, bool simulateExistingValidFile = true)
             : base(output, editor ?? Substitute.For<IReadmeEditor>())
@@ -42,10 +42,10 @@ namespace Trakx.Utils.Testing.Tests.Integration
                                                          "SecretAbc=********" + Environment.NewLine +
                                                          "SomeConfigClassName__SomePropertyName=********" + Environment.NewLine +
                                                          "```" + Environment.NewLine;
-            Editor.ExtractReadmeContent(Arg.Any<string>()).Returns(
+            Editor.ExtractReadmeContent().Returns(
                 fakeReadmeContent);
-            Editor.When(e => e.UpdateReadmeContent(Arg.Any<string>(), Arg.Any<string>()))
-                .Do(ci => (ci[1] as string).Should().Be(fakeReadmeContent, "the content should not change."));
+            Editor.When(e => e.UpdateReadmeContent(Arg.Any<string>()))
+                .Do(ci => (ci[0] as string).Should().Be(fakeReadmeContent, "the content should not change."));
         }
     }
 
@@ -63,7 +63,7 @@ namespace Trakx.Utils.Testing.Tests.Integration
         [Fact]
         public async Task UpdateEnvFileDocumentation_should_not_update_when_section_does_not_exist()
         {
-            _readmeEditor.ExtractReadmeContent(Arg.Any<string>()).ReturnsForAnyArgs(
+            _readmeEditor.ExtractReadmeContent().ReturnsForAnyArgs(
                 "## Existing Section" + Environment.NewLine +
                 "with a paragraph, and some text" + Environment.NewLine);
 
@@ -92,15 +92,15 @@ namespace Trakx.Utils.Testing.Tests.Integration
                 existingSecret + Environment.NewLine +
                 "```" + Environment.NewLine;
             
-            _readmeEditor.ExtractReadmeContent(Arg.Any<string>()).ReturnsForAnyArgs(
+            _readmeEditor.ExtractReadmeContent().ReturnsForAnyArgs(
                 readmeContent);
 
             var success = await _updater.UpdateEnvFileDocumentation();
             success.Should().BeTrue();
 
-            await _readmeEditor.Received(1).UpdateReadmeContent(Arg.Any<string>(), Arg.Any<string>());
+            await _readmeEditor.Received(1).UpdateReadmeContent(Arg.Any<string>());
             var firstArgument = _readmeEditor.ReceivedCalls()
-                .Single(c => c.GetMethodInfo().Name == nameof(_readmeEditor.UpdateReadmeContent)).GetArguments()[1] as string;
+                .Single(c => c.GetMethodInfo().Name == nameof(_readmeEditor.UpdateReadmeContent)).GetArguments()[0] as string;
             firstArgument.Should().Contain(secretsToBeAdded);
         }
     }

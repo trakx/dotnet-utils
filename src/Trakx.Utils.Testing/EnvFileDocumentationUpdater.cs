@@ -15,25 +15,6 @@ using Xunit.Abstractions;
 
 namespace Trakx.Utils.Testing
 {
-    public interface IReadmeEditor
-    {
-        Task<string> ExtractReadmeContent(string filePath);
-        Task UpdateReadmeContent(string filePath, string newContent);
-    }
-
-    public class ReadmeEditor : IReadmeEditor
-    {
-        public async Task<string> ExtractReadmeContent(string filePath)
-        {
-            return await File.ReadAllTextAsync(filePath);
-        }
-
-        public async Task UpdateReadmeContent(string filePath, string newContent)
-        {
-            await File.WriteAllTextAsync(filePath, newContent);
-        }
-    }
-
     /// <summary>
     /// This class should be inherited in the est suites of projects which need
     /// secrets to be provided by environment variables. It will run trigger the run
@@ -44,15 +25,22 @@ namespace Trakx.Utils.Testing
     {
         private readonly ITestOutputHelper _output;
         private readonly IReadmeEditor _editor;
-        protected IReadmeEditor Editor => _editor;
+        internal IReadmeEditor Editor => _editor;
         private static readonly Regex DotEnvSection = new Regex(@"```secretsEnvVariables\r?\n(?<envVars>(?<envVar>([\w]+)=(\*)+\r?\n)+)```\r?\n");
         private readonly PathAssemblyResolver _resolver;
         protected readonly Assembly ImplementingAssembly;
 
-        protected EnvFileDocumentationUpdaterBase(ITestOutputHelper output, IReadmeEditor? editor = default)
+        protected EnvFileDocumentationUpdaterBase(ITestOutputHelper output) : this(output, default) { }
+
+#pragma warning disable S3442 // "abstract" classes should not have "public" constructors
+        internal EnvFileDocumentationUpdaterBase(ITestOutputHelper output, IReadmeEditor? editor)
+#pragma warning restore S3442 // "abstract" classes should not have "public" constructors
         {
             _output = output;
-            _editor = editor ?? new ReadmeEditor();
+            var readmeDirectoryInfo = GetRepositoryRootDirectory();
+            var readmeFilePath = Path.Combine(readmeDirectoryInfo!.FullName, "README.md");
+
+            _editor = editor ?? new ReadmeEditor(readmeFilePath);
             _resolver = GetTrakxAssemblyResolver();
             ImplementingAssembly = this.GetType().Assembly;
         }
@@ -70,11 +58,8 @@ namespace Trakx.Utils.Testing
             {
                 var expectedEnvVarSecrets = GetExpectedEnvVarSecretsFromLoadedAssemblies();
                 if (!expectedEnvVarSecrets.Any()) return true;
-
-                var readmeDirectoryInfo = GetRepositoryRootDirectory();
-                var readmeFilePath = Path.Combine(readmeDirectoryInfo!.FullName, "README.md");
-
-                var readmeContent = await _editor.ExtractReadmeContent(readmeFilePath);
+                
+                var readmeContent = await _editor.ExtractReadmeContent();
                 var secretsMentionedInReadme = DotEnvSection.Match(readmeContent);
 
                 if (!secretsMentionedInReadme.Success)
@@ -90,13 +75,13 @@ namespace Trakx.Utils.Testing
                 var newContent = string.Join(Environment.NewLine, GetExpectedEnvVarSecretsFromLoadedAssemblies())! + Environment.NewLine;
                 var newReadmeContent = readmeContent.Replace(contentToReplace, newContent, StringComparison.InvariantCulture);
 
-                await _editor.UpdateReadmeContent(readmeFilePath, newReadmeContent);
+                await _editor.UpdateReadmeContent(newReadmeContent);
 
                 return true;
             }
             catch (Exception e)
             {
-                _output.WriteLine($"Failed to update env file documentation.");
+                _output.WriteLine("Failed to update env file documentation.");
                 _output.WriteLine(e.ToString());
                 return false;
             }
