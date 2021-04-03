@@ -1,5 +1,4 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Trakx.Utils.Attributes;
 using Trakx.Utils.Testing.Attributes;
 using Xunit;

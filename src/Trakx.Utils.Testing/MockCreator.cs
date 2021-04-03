@@ -11,7 +11,7 @@ namespace Trakx.Utils.Testing
         protected static readonly string Alphabet = "abcdefghijklmnopqrstuvwxyz";
         protected readonly string Name;
 
-        protected MockCreator(ITestOutputHelper output)
+        public MockCreator(ITestOutputHelper output)
         {
             Name = output.GetCurrentTestName();
             Random = new Random(Name.GetHashCode());
