@@ -74,9 +74,11 @@ namespace Trakx.Utils.Testing.Tests.Integration
         [Fact]
         public async Task UpdateEnvFileDocumentation_should_update_when_section_exist()
         {
+            var secretFromOtherAssembly = "Secret__FromOtherAssembly=********" + Environment.NewLine;
             var existingSecret = "FakeConfiguration__SecretAbc=********" + Environment.NewLine +
+                                 secretFromOtherAssembly +
                                  "SomeConfigClassName__SomePropertyName=********";
-            var secretsToBeAdded = 
+            var secretsToBeAdded =
                 "FakeConfiguration__ImplicitlyNamedSecret=********" + Environment.NewLine +
                     "Secret123=********" + Environment.NewLine;
 
@@ -102,6 +104,7 @@ namespace Trakx.Utils.Testing.Tests.Integration
             var firstArgument = _readmeEditor.ReceivedCalls()
                 .Single(c => c.GetMethodInfo().Name == nameof(_readmeEditor.UpdateReadmeContent)).GetArguments()[0] as string;
             firstArgument.Should().Contain(secretsToBeAdded);
+            firstArgument.Should().Contain(secretFromOtherAssembly);
         }
     }
-}
+ }

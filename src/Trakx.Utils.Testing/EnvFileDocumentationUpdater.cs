@@ -73,7 +73,9 @@ namespace Trakx.Utils.Testing
                 }
 
                 var contentToReplace = secretsMentionedInReadme.Groups["envVars"].Value;
-                var newContent = string.Join(Environment.NewLine, GetExpectedEnvVarSecretsFromLoadedAssemblies())! + Environment.NewLine;
+                var knownSecrets = secretsMentionedInReadme.Groups["envVars"].Value.Split(Environment.NewLine);
+                var allSecrets = GetExpectedEnvVarSecretsFromLoadedAssemblies().Union(knownSecrets).Distinct();
+                var newContent = string.Join(Environment.NewLine, allSecrets)! + Environment.NewLine;
                 var newReadmeContent = readmeContent.Replace(contentToReplace, newContent, StringComparison.InvariantCulture);
 
                 await _editor.UpdateReadmeContent(newReadmeContent).ConfigureAwait(false);
