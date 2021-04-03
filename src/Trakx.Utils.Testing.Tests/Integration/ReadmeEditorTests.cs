@@ -29,7 +29,8 @@ namespace Trakx.Utils.Testing.Tests.Integration
 
             var delays = Enumerable.Repeat(TimeSpan.FromMilliseconds(100), 100);
             var retryPolicy = Policy.Handle<Exception>().WaitAndRetryAsync(delays);
-            var trials = await retryPolicy.ExecuteAndCaptureAsync(async () => await File.ReadAllTextAsync(file))
+            var trials = await retryPolicy.ExecuteAndCaptureAsync(
+                    async () => await File.ReadAllTextAsync(file).ConfigureAwait(false))
                 .ConfigureAwait(false);
             trials.Result.Should().Be("hello **********");
         }
