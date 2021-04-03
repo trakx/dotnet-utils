@@ -193,5 +193,17 @@ namespace Trakx.Utils.Testing
             var resolver = new PathAssemblyResolver(assemblyPaths);
             return resolver;
         }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing) return;
+            _editor.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }
