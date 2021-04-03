@@ -20,7 +20,7 @@ namespace Trakx.Utils.Tests.Unit.Extensions
         {
             "hello".AsSingletonArray().Should()
                 .BeAssignableTo<string[]>()
-                .And.BeEquivalentTo(new[] { "hello" });
+                .And.BeEquivalentTo("hello");
         }
 
         [Fact]

@@ -177,7 +177,7 @@ namespace Trakx.Utils.Extensions
         public static SelectionWithMeanStandardDeviation<T?> SelectLeastDeviatedValue<T>(this IEnumerable<T> preferences,
             Func<T, double?> valueSelector)
         {
-            return SelectPreferenceWithMaxDeviationThreshold(preferences, valueSelector, 0, false);
+            return SelectPreferenceWithMaxDeviationThreshold(preferences, valueSelector, 0);
         }
 
         public static string ToCsvDistinctList<T>(this IEnumerable<T> items, bool spacing = false)

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 
 namespace Trakx.Utils.Testing

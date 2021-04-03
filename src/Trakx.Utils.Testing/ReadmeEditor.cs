@@ -25,11 +25,11 @@ namespace Trakx.Utils.Testing
         
         public async Task<string> ExtractReadmeContent()
         {
-            await _semaphore.WaitAsync();
-            _stream ??= await GetExclusiveFileStream();
+            await _semaphore.WaitAsync().ConfigureAwait(false);
+            _stream ??= await GetExclusiveFileStream().ConfigureAwait(false);
             _stream.Seek(0, SeekOrigin.Begin);
             using var reader = new StreamReader(_stream, leaveOpen: true);
-            var result = await reader.ReadToEndAsync();
+            var result = await reader.ReadToEndAsync().ConfigureAwait(false);
             return result;
         }
 
@@ -43,13 +43,13 @@ namespace Trakx.Utils.Testing
 
         public async Task UpdateReadmeContent(string newContent)
         {
-            _stream ??= await GetExclusiveFileStream();
+            _stream ??= await GetExclusiveFileStream().ConfigureAwait(false);
             _stream.SetLength(0);
             _stream.Seek(0, SeekOrigin.Begin);
 
             await using var writer = new StreamWriter(_stream, leaveOpen: true);
-            await writer.WriteAsync(newContent);
-            await writer.FlushAsync();
+            await writer.WriteAsync(newContent).ConfigureAwait(false);
+            await writer.FlushAsync().ConfigureAwait(false);
             _semaphore.Release(1);
         }
          

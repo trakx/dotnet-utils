@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -42,7 +43,7 @@ namespace Trakx.Utils.Testing
 
             _editor = editor ?? new ReadmeEditor(readmeFilePath);
             _resolver = GetTrakxAssemblyResolver();
-            ImplementingAssembly = this.GetType().Assembly;
+            ImplementingAssembly = GetType().Assembly;
         }
 
         [Fact]
@@ -75,7 +76,7 @@ namespace Trakx.Utils.Testing
                 var newContent = string.Join(Environment.NewLine, GetExpectedEnvVarSecretsFromLoadedAssemblies())! + Environment.NewLine;
                 var newReadmeContent = readmeContent.Replace(contentToReplace, newContent, StringComparison.InvariantCulture);
 
-                await _editor.UpdateReadmeContent(newReadmeContent);
+                await _editor.UpdateReadmeContent(newReadmeContent).ConfigureAwait(false);
 
                 return true;
             }
@@ -184,7 +185,7 @@ namespace Trakx.Utils.Testing
             var executingAssemblyLocation = new FileInfo(executingAssembly!.Location).Directory!.GetFiles("Trakx.*.dll")
                 .Select(f => f.FullName).ToList();
             var runtimeAssembliesLocations =
-                Directory.GetFiles(System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory(), "*.dll");
+                Directory.GetFiles(RuntimeEnvironment.GetRuntimeDirectory(), "*.dll");
 
             var assemblyPaths = runtimeAssembliesLocations.Union(executingAssemblyLocation);
             var resolver = new PathAssemblyResolver(assemblyPaths);

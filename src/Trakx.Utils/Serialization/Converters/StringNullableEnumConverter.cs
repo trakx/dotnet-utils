@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
 #pragma warning disable IDE0046 // Convert to conditional expression
 
 namespace Trakx.Utils.Serialization.Converters

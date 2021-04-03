@@ -98,7 +98,7 @@ namespace Trakx.Utils.Testing.Tests.Integration
             var success = await _updater.UpdateEnvFileDocumentation();
             success.Should().BeTrue();
 
-            await _readmeEditor.Received(1).UpdateReadmeContent(Arg.Any<string>());
+            await _readmeEditor.Received(1).UpdateReadmeContent(Arg.Any<string>()).ConfigureAwait(false);
             var firstArgument = _readmeEditor.ReceivedCalls()
                 .Single(c => c.GetMethodInfo().Name == nameof(_readmeEditor.UpdateReadmeContent)).GetArguments()[0] as string;
             firstArgument.Should().Contain(secretsToBeAdded);

@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Polly;
-using Polly.Contrib.WaitAndRetry;
 using Xunit;
 
 namespace Trakx.Utils.Testing.Tests.Integration
@@ -17,17 +15,17 @@ namespace Trakx.Utils.Testing.Tests.Integration
         {
             var file = Path.GetTempFileName();
             await using var writer = new StreamWriter(file);
-            await writer.WriteAsync("hello ");
-            await writer.DisposeAsync();
+            await writer.WriteAsync("hello ").ConfigureAwait(false);
+            await writer.DisposeAsync().ConfigureAwait(false);
 
             var edits = Enumerable.Repeat("*", 10).Select(async s =>
             {
                 using var editor = new ReadmeEditor(file);
-                var content = await editor.ExtractReadmeContent();
-                await editor.UpdateReadmeContent(content + s);
+                var content = await editor.ExtractReadmeContent().ConfigureAwait(false);
+                await editor.UpdateReadmeContent(content + s).ConfigureAwait(false);
             }).ToArray();
 
-            await Task.WhenAll(edits);
+            await Task.WhenAll(edits).ConfigureAwait(false);
 
             var delays = Enumerable.Repeat(TimeSpan.FromMilliseconds(100), 100);
             var retryPolicy = Policy.Handle<Exception>().WaitAndRetryAsync(delays);

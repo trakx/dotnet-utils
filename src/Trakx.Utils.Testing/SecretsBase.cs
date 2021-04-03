@@ -1,7 +1,7 @@
-﻿using DotNetEnv;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
+using DotNetEnv;
 using Trakx.Utils.Attributes;
 using Trakx.Utils.Extensions;
 using static System.Environment;

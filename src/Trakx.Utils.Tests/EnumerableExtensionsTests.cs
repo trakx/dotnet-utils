@@ -123,7 +123,7 @@ namespace Trakx.Utils.Tests
         [Fact]
         public void SelectLeastDeviatedValue_example_from_real_life_should_not_pick_cryptocompare_valution()
         {
-            var values = new Dictionary<string, decimal>()
+            var values = new Dictionary<string, decimal>
             {
                 {"CryptoCompare", 0.004720472047204721m},
                 {"Shrimpy", 0.6387407104069606m},
