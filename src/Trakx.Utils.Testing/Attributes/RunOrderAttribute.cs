@@ -4,7 +4,7 @@ namespace Trakx.Utils.Testing.Attributes
 {
     //https://docs.microsoft.com/en-us/dotnet/core/testing/order-unit-tests?pivots=xunit
 
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method)]
     public class RunOrderAttribute : Attribute
     {
         /// <summary>

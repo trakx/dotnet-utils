@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+
 #pragma warning disable IDE0046 // Convert to conditional expression
 
 namespace Trakx.Utils.Comparers

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Trakx.Utils.Testing.Attributes;
 using Xunit;
 using Xunit.Abstractions;
+
 #pragma warning disable S2699
 
 namespace Trakx.Utils.Testing

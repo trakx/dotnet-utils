@@ -138,7 +138,7 @@ namespace Trakx.Utils.Extensions
         /// <param name="throwIfNoMatchFound">False by default, allows the method to throw if no match under <see cref="maxStandardDeviations"/>
         /// is found.</param>
         public static SelectionWithMeanStandardDeviation<T?> SelectPreferenceWithMaxDeviationThreshold<T>(this IEnumerable<T> preferences,
-            Func<T, double?> valueSelector, double maxStandardDeviations = 1.5, bool throwIfNoMatchFound = false)
+            Func<T, double?> valueSelector, double maxStandardDeviations = 0.2, bool throwIfNoMatchFound = false)
         {
             var preferenceList = preferences.Where(p => !double.IsNaN(valueSelector(p) ?? double.NaN)).ToList();
 
@@ -166,6 +166,18 @@ namespace Trakx.Utils.Extensions
                     $"Failed to find a valid value from list within {maxStandardDeviations} " +
                     $"standard deviations of the mean, with mean {mean} and standardDeviation {standardDeviation}")
                 : new SelectionWithMeanStandardDeviation<T?>(leastDeviated, mean, standardDeviation);
+        }
+
+        /// <summary>
+        /// Returns the value with the lowest standard deviation from a given distribution.
+        /// </summary>
+        /// <typeparam name="T">Type of the items that are being sorter by preference.</typeparam>
+        /// <param name="preferences">List of items to choose from, ordered by preference.</param>
+        /// <param name="valueSelector">Function used to select the value on which to base the statistics used to pick a value.</param>
+        public static SelectionWithMeanStandardDeviation<T?> SelectLeastDeviatedValue<T>(this IEnumerable<T> preferences,
+            Func<T, double?> valueSelector)
+        {
+            return SelectPreferenceWithMaxDeviationThreshold(preferences, valueSelector, 0);
         }
 
         public static string ToCsvDistinctList<T>(this IEnumerable<T> items, bool spacing = false)
