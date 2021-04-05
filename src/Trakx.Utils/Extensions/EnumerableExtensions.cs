@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using MathNet.Numerics.Statistics;
 using Trakx.Utils.Comparers;
 
@@ -26,100 +27,19 @@ namespace Trakx.Utils.Extensions
             return intersection;
         }
 
-        /// <summary>
-        /// Partitions the given list around a pivot element such that all elements on left of pivot are <= pivot
-        /// and the ones at thr right are > pivot. This method can be used for sorting, N-order statistics such as
-        /// as median finding algorithms.
-        /// Pivot is selected randomly if random number generator is supplied else its selected as last element in the list.
-        /// Reference: Introduction to Algorithms 3rd Edition, Corman et al, pp 171
-        /// </summary>
-        private static int Partition<T>(this IList<T> list, int start, int end, Random? rnd = null)
-            where T : IComparable<T>
+        public readonly struct SelectionWithStatistics<T>
         {
-            if (rnd != null)
-                list.Swap(end, rnd.Next(start, end + 1));
-
-            var pivot = list[end];
-            var lastLow = start - 1;
-            for (var i = start; i < end; i++)
-            {
-                if (list[i].CompareTo(pivot) <= 0)
-                    list.Swap(i, ++lastLow);
-            }
-
-            list.Swap(end, ++lastLow);
-            return lastLow;
-        }
-
-        /// <summary>
-        /// Returns Nth smallest element from the list. Here n starts from 0 so that n=0 returns minimum, n=1 returns 2nd smallest element etc.
-        /// Note: specified list would be mutated in the process.
-        /// Reference: Introduction to Algorithms 3rd Edition, Corman et al, pp 216
-        /// </summary>
-        public static T NthOrderStatistic<T>(this IList<T> list, int n, Random? rnd = null) where T : IComparable<T>
-        {
-            return NthOrderStatistic(list, n, 0, list.Count - 1, rnd);
-        }
-
-        private static T NthOrderStatistic<T>(this IList<T> list, int n, int start, int end, Random? rnd)
-            where T : IComparable<T>
-        {
-            while (true)
-            {
-                var pivotIndex = list.Partition(start, end, rnd);
-                if (pivotIndex == n)
-                    return list[pivotIndex];
-
-                if (n < pivotIndex)
-                    end = pivotIndex - 1;
-                else
-                    start = pivotIndex + 1;
-            }
-        }
-
-        // Credits to https://stackoverflow.com/questions/4140719/calculate-median-in-c-sharp
-        public static void Swap<T>(this IList<T> list, int i, int j)
-        {
-            if (i == j) //This check is not required but Partition function may make many calls so its for perf reason
-                return;
-            var temp = list[i];
-            list[i] = list[j];
-            list[j] = temp;
-        }
-
-        /// <summary>
-        /// Note: specified list would be mutated in the process.
-        /// </summary>
-        public static T Median<T>(this IList<T> list) where T : IComparable<T>
-        {
-            return list.NthOrderStatistic((list.Count - 1) / 2);
-        }
-
-        public static double Median<T>(this IEnumerable<T> sequence, Func<T, double> getValue)
-        {
-            var list = sequence.Select(getValue).ToList();
-            var mid = (list.Count - 1) / 2;
-            return list.NthOrderStatistic(mid);
-        }
-
-        public static decimal Median<T>(this IEnumerable<T> sequence, Func<T, decimal> getValue)
-        {
-            var list = sequence.Select(getValue).ToList();
-            var mid = (list.Count - 1) / 2;
-            return list.NthOrderStatistic(mid);
-        }
-
-        public readonly struct SelectionWithMeanStandardDeviation<T>
-        {
-            public SelectionWithMeanStandardDeviation(T? selection, double mean, double standardDeviation)
+            public SelectionWithStatistics(T? selection, double mean, double standardDeviation, double median)
             {
                 Selection = selection;
                 Mean = mean;
                 StandardDeviation = standardDeviation;
+                Median = median;
             }
 
             public readonly T? Selection;
             public readonly double Mean;
+            public readonly double Median;
             public readonly double StandardDeviation;
         }
 
@@ -137,24 +57,28 @@ namespace Trakx.Utils.Extensions
         /// preferred value is rejected and the next preferred one will be evaluated.</param>
         /// <param name="throwIfNoMatchFound">False by default, allows the method to throw if no match under <see cref="maxStandardDeviations"/>
         /// is found.</param>
-        public static SelectionWithMeanStandardDeviation<T?> SelectPreferenceWithMaxDeviationThreshold<T>(this IEnumerable<T> preferences,
-            Func<T, double?> valueSelector, double maxStandardDeviations = 0.2, bool throwIfNoMatchFound = false)
+        internal static SelectionWithStatistics<T?> SelectPreferenceWithMaxDeviationThreshold<T>(this IEnumerable<T> preferences,
+            Func<T, double?> valueSelector, double maxStandardDeviations = 0.2, bool useDeviationFromMedian = false, bool throwIfNoMatchFound = false)
         {
             var preferenceList = preferences.Where(p => !double.IsNaN(valueSelector(p) ?? double.NaN)).ToList();
 
+            var values = preferenceList.Select(v => valueSelector(v)!.Value).ToList();
+            
             if (preferenceList.Count == 1)
-                return new SelectionWithMeanStandardDeviation<T?>(preferenceList[0], valueSelector(preferenceList[0])!.Value, 0);
-            var (mean, standardDeviation) = preferenceList.Select(v => valueSelector(v)!.Value).MeanStandardDeviation();
-            if(double.IsNaN(mean) || double.IsNaN(standardDeviation)) 
-                return new SelectionWithMeanStandardDeviation<T?>(default, mean, standardDeviation);
+                return new SelectionWithStatistics<T?>(preferenceList[0], values[0], 0, values[0]);
+
+            var (mean, standardDeviation) = values.MeanStandardDeviation();
+            var median = values.Median();
+            if(double.IsNaN(mean) || double.IsNaN(standardDeviation) || double.IsNaN(median)) 
+                return new SelectionWithStatistics<T?>(default, mean, standardDeviation, median);
 
             var minimumDeviation = double.MaxValue;
             var leastDeviated = default(T?);
             foreach (var preference in preferenceList)
             {
-                var deviation = Math.Abs(valueSelector(preference)!.Value - mean);
+                var deviation = Math.Abs(valueSelector(preference)!.Value - (useDeviationFromMedian ? median : mean));
                 if (deviation < maxStandardDeviations * standardDeviation)
-                    return new SelectionWithMeanStandardDeviation<T?>(preference, mean, standardDeviation);
+                    return new SelectionWithStatistics<T?>(preference, mean, standardDeviation, median);
 
                 if (deviation > minimumDeviation) continue;
                 minimumDeviation = deviation;
@@ -165,7 +89,7 @@ namespace Trakx.Utils.Extensions
                 ? throw new InvalidDataException(
                     $"Failed to find a valid value from list within {maxStandardDeviations} " +
                     $"standard deviations of the mean, with mean {mean} and standardDeviation {standardDeviation}")
-                : new SelectionWithMeanStandardDeviation<T?>(leastDeviated, mean, standardDeviation);
+                : new SelectionWithStatistics<T?>(leastDeviated, mean, standardDeviation, median);
         }
 
         /// <summary>
@@ -174,10 +98,22 @@ namespace Trakx.Utils.Extensions
         /// <typeparam name="T">Type of the items that are being sorter by preference.</typeparam>
         /// <param name="preferences">List of items to choose from, ordered by preference.</param>
         /// <param name="valueSelector">Function used to select the value on which to base the statistics used to pick a value.</param>
-        public static SelectionWithMeanStandardDeviation<T?> SelectLeastDeviatedValue<T>(this IEnumerable<T> preferences,
+        public static SelectionWithStatistics<T?> SelectLeastDeviatedFromMeanValue<T>(this IEnumerable<T> preferences,
             Func<T, double?> valueSelector)
         {
             return SelectPreferenceWithMaxDeviationThreshold(preferences, valueSelector, 0);
+        }
+
+        /// <summary>
+        /// Returns the value which is closest to the median of a given distribution.
+        /// </summary>
+        /// <typeparam name="T">Type of the items that are being sorter by preference.</typeparam>
+        /// <param name="preferences">List of items to choose from, ordered by preference.</param>
+        /// <param name="valueSelector">Function used to select the value on which to base the statistics used to pick a value.</param>
+        public static SelectionWithStatistics<T?> SelectLeastDeviatedFromMedianValue<T>(this IEnumerable<T> preferences,
+            Func<T, double?> valueSelector)
+        {
+            return SelectPreferenceWithMaxDeviationThreshold(preferences, valueSelector, 0, true);
         }
 
         public static string ToCsvDistinctList<T>(this IEnumerable<T> items, bool spacing = false)

@@ -73,9 +73,9 @@ namespace Trakx.Utils.Testing
                 }
 
                 var contentToReplace = secretsMentionedInReadme.Groups["envVars"].Value;
-                var knownSecrets = secretsMentionedInReadme.Groups["envVars"].Value.Split(Environment.NewLine);
+                var knownSecrets = secretsMentionedInReadme.Groups["envVars"].Value.Split(Environment.NewLine).Where(s => !string.IsNullOrWhiteSpace(s));
                 var allSecrets = GetExpectedEnvVarSecretsFromLoadedAssemblies().Union(knownSecrets).Distinct().OrderBy(s => s);
-                var newContent = string.Join(Environment.NewLine, allSecrets)!;
+                var newContent = string.Join(Environment.NewLine, allSecrets)! + Environment.NewLine;
                 var newReadmeContent = readmeContent.Replace(contentToReplace, newContent, StringComparison.InvariantCulture);
 
                 await _editor.UpdateReadmeContent(newReadmeContent).ConfigureAwait(false);
@@ -99,20 +99,12 @@ namespace Trakx.Utils.Testing
             return repositoryRoot;
         }
 
-        private static void AppendEnvVarNamesByAssembly(StringBuilder builder, List<string> expectedEnvVars)
-        {
-            foreach (var envVar in expectedEnvVars)
-            {
-                builder.AppendLine(envVar);
-            }
-        }
-
         private static void AppendExampleEnvFileDocumentationSection(StringBuilder builder, List<string> expectedEnvVars)
         {
             builder.AppendLine("## Creating your local .env file");
             builder.AppendLine("In order to be able to run some integration tests, you should create a `.env` file in the `src` folder with the following variables:");
             builder.AppendLine("```secretsEnvVariables");
-            AppendEnvVarNamesByAssembly(builder, expectedEnvVars);
+            builder.AppendLine(string.Join(Environment.NewLine, expectedEnvVars));
             builder.AppendLine("```");
             builder.AppendLine(string.Empty);
         }

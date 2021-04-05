@@ -52,7 +52,7 @@ namespace Trakx.Utils.Tests
             var maxStandardDeviation = GetTooStrictMaxStandardDeviation();
 
             var selectionAction = new Action(() =>
-                _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation, true));
+                _distribution.SelectPreferenceWithMaxDeviationThreshold(x => x, maxStandardDeviation, throwIfNoMatchFound: true));
 
             selectionAction.Should().Throw<InvalidDataException>();
         }
@@ -62,7 +62,7 @@ namespace Trakx.Utils.Tests
         {
             var maxStandardDeviation = GetTooStrictMaxStandardDeviation();
 
-            var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
+            var selectionAction = new Func<EnumerableExtensions.SelectionWithStatistics<double?>>(
                 () => _distribution.Select(x => new double?(x))
                     .SelectPreferenceWithMaxDeviationThreshold(x => x!.Value, maxStandardDeviation));
 
@@ -83,7 +83,7 @@ namespace Trakx.Utils.Tests
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_empty_sets()
         {
-            var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
+            var selectionAction = new Func<EnumerableExtensions.SelectionWithStatistics<double?>>(
                 () => Array.Empty<double?>().SelectPreferenceWithMaxDeviationThreshold(x => x ?? 0, 10));
 
             selectionAction.Should().NotThrow<Exception>();
@@ -94,7 +94,7 @@ namespace Trakx.Utils.Tests
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_sets_with_one_value()
         {
-            var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
+            var selectionAction = new Func<EnumerableExtensions.SelectionWithStatistics<double?>>(
                 () => new double?[] {0.245, double.NaN, null}.SelectPreferenceWithMaxDeviationThreshold(
                     x => x ?? 0, 10));
 
@@ -105,7 +105,7 @@ namespace Trakx.Utils.Tests
         [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_not_throw_on_sets_with_two_values()
         {
-            var selectionAction = new Func<EnumerableExtensions.SelectionWithMeanStandardDeviation<double?>>(
+            var selectionAction = new Func<EnumerableExtensions.SelectionWithStatistics<double?>>(
                 () => new double?[] {0.245, 0.256, null}.SelectPreferenceWithMaxDeviationThreshold(
                     x => x ?? 0, 10));
 
@@ -121,7 +121,7 @@ namespace Trakx.Utils.Tests
         }
 
         [Fact]
-        public void SelectLeastDeviatedValue_example_from_real_life_should_not_pick_cryptocompare_valution()
+        public void SelectLeastDeviatedFromMeanValue_example_from_real_life_should_not_pick_cryptocompare_valution()
         {
             var values = new Dictionary<string, decimal>
             {
@@ -130,8 +130,29 @@ namespace Trakx.Utils.Tests
                 {"CoinGecko", 0.6526023201009594m},
             };
 
-            var selection = values.SelectLeastDeviatedValue(p => (double)p.Value);
+            var selection = values.SelectLeastDeviatedFromMeanValue(p => (double)p.Value);
             selection.Selection.Key.Should().NotBe("CryptoCompare");
+        }
+
+        [Fact]
+        public void SelectLeastDeviatedFromMedianValue_return_the_first_value_closest_to_the_median()
+        {
+            var values = new Dictionary<string, decimal>
+            {
+                {"CryptoCompare", 0.001m},
+                {"Coingecko", 0.001m},
+                {"Shrimpy", 1.2m},
+                {"Binance", 1.3m},
+                {"Okex", 1.4m},
+                {"Gemini", 1.5m},
+                {"BitStamp", 1.6m},
+                {"Kucoin", 1.7m},
+            };
+
+            var selection = values.SelectLeastDeviatedFromMedianValue(p => (double)p.Value);
+            selection.Median.Should().Be(1.35);
+            selection.Mean.Should().Be(1.08775);
+            selection.Selection.Key.Should().Be("Okex");
         }
     }
 }
