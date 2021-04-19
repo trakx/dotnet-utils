@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
+using System.Security.Cryptography;
 using MathNet.Numerics.Statistics;
 using Trakx.Utils.Comparers;
 
@@ -10,6 +10,26 @@ namespace Trakx.Utils.Extensions
 {
     public static class EnumerableExtensions
     {
+        public static IList<T> Shuffle<T>(this IEnumerable<T> enumerable)
+        {
+            var list = enumerable.ToList();
+            var count = list.Count;
+            var provider = new RNGCryptoServiceProvider();
+            while (count > 1)
+            {
+                byte[] box = new byte[1];
+                do provider.GetBytes(box);
+                while (box[0] >= count * (byte.MaxValue / count));
+                var k = (box[0] % count);
+                count--;
+                var value = list[k];
+                list[k] = list[count];
+                list[count] = value;
+            }
+
+            return list;
+        }
+
         public static IEnumerable<T> IntersectMany<T>(this IEnumerable<IEnumerable<T>> enumOfEnums)
         {
             var ofEnums = enumOfEnums as List<IEnumerable<T>> ?? enumOfEnums.ToList();
