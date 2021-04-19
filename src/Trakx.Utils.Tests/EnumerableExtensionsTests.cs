@@ -24,9 +24,18 @@ namespace Trakx.Utils.Tests
             var ordered = Enumerable.Range(0, 40).ToList();
             for (var i = 0; i < 20; i++)
             {
-                var shuffled = ordered.Shuffle();
-                shuffled.Should().BeEquivalentTo(ordered);
-                string.Join(" ", ordered).Should().NotBe(string.Join(" ", shuffled));
+                var shuffled1 = ordered.Shuffle();
+                shuffled1.Should().BeEquivalentTo(ordered);
+                string.Join(" ", ordered).Should()
+                    .NotBe(string.Join(" ", shuffled1));
+
+                var shuffled2 = ordered.Shuffle();
+                shuffled2.Should().BeEquivalentTo(ordered);
+                string.Join(" ", ordered).Should()
+                    .NotBe(string.Join(" ", shuffled2));
+
+                string.Join(" ", shuffled1).Should()
+                    .NotBe(string.Join(" ", shuffled2));
             }
         }
 
