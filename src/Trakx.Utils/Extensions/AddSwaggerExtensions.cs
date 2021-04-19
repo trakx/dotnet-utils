@@ -15,11 +15,13 @@ namespace Trakx.Utils.Extensions
         /// Registers dependencies needed to provide a Swagger documentation to the API.
         /// </summary>
         /// <param name="services">THe collection on service collection on which registration should be
-        /// performed</param>
+        ///     performed</param>
         /// <param name="apiName">Name for the API</param>
         /// <param name="apiVersion">SemVer version of the API, usually starts with 'v' like v0.1</param>
+        /// <param name="apiDescription">Short description of the purpose of the documented API</param>
         /// <param name="assemblyName">use Assembly.GetExecutingAssembly().GetName().Name</param>
-        public static void AddSwaggerJsonAndUi(this IServiceCollection services, string apiName, string apiVersion, string? assemblyName = null)
+        public static void AddSwaggerJsonAndUi(this IServiceCollection services, string apiName, string apiVersion,
+            string apiDescription, string? assemblyName = null)
         {
             services.AddSwaggerGen(c =>
             {
@@ -28,6 +30,16 @@ namespace Trakx.Utils.Extensions
                 var xmlFile = $"{assemblyName ?? Assembly.GetEntryAssembly()?.GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+            });
+
+            services.AddOpenApiDocument(settings =>
+            {
+                settings.PostProcess = document =>
+                {
+                    document.Info.Version = apiVersion;
+                    document.Info.Title = apiName;
+                    document.Info.Description = apiDescription;
+                };
             });
         }
 
