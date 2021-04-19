@@ -18,13 +18,14 @@ namespace Trakx.Utils.Extensions
         /// performed</param>
         /// <param name="apiName">Name for the API</param>
         /// <param name="apiVersion">SemVer version of the API, usually starts with 'v' like v0.1</param>
-        public static void AddSwaggerJsonAndUi(this IServiceCollection services, string apiName, string apiVersion, string assemblyName)
+        /// <param name="assemblyName">use Assembly.GetExecutingAssembly().GetName().Name</param>
+        public static void AddSwaggerJsonAndUi(this IServiceCollection services, string apiName, string apiVersion, string? assemblyName = null)
         {
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(apiVersion, new OpenApiInfo { Title = apiName, Version = apiVersion });
                 // Set the comments path for the Swagger JSON and UI.
-                var xmlFile = $"{Assembly.GetCallingAssembly().GetName().Name}.xml";
+                var xmlFile = $"{assemblyName ?? Assembly.GetEntryAssembly()?.GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
