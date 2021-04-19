@@ -19,6 +19,18 @@ namespace Trakx.Utils.Tests
         }
 
         [Fact]
+        public void Shuffle_should_randomise_collection_items()
+        {
+            var ordered = Enumerable.Range(0, 40).ToList();
+            for (var i = 0; i < 20; i++)
+            {
+                var shuffled = ordered.Shuffle();
+                shuffled.Should().BeEquivalentTo(ordered);
+                string.Join(" ", ordered).Should().NotBe(string.Join(" ", shuffled));
+            }
+        }
+
+        [Fact]
         public void SelectPreferenceWithMaxDeviationThreshold_should_choose_first_value_if_not_too_deviant()
         {
             var (mean, standardDeviation) = _distribution.MeanStandardDeviation();
