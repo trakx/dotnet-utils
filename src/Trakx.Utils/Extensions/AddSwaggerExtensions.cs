@@ -11,18 +11,32 @@ namespace Trakx.Utils.Extensions
 {
     public static class AddSwaggerExtensions
     {
-        public static void AddSwaggerJsonAndUi(this IServiceCollection services, string apiName, string apiVersion)
+        /// <summary>
+        /// Registers dependencies needed to provide a Swagger documentation to the API.
+        /// </summary>
+        /// <param name="services">THe collection on service collection on which registration should be
+        /// performed</param>
+        /// <param name="apiName">Name for the API</param>
+        /// <param name="apiVersion">SemVer version of the API, usually starts with 'v' like v0.1</param>
+        public static void AddSwaggerJsonAndUi(this IServiceCollection services, string apiName, string apiVersion, string assemblyName)
         {
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(apiVersion, new OpenApiInfo { Title = apiName, Version = apiVersion });
                 // Set the comments path for the Swagger JSON and UI.
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlFile = $"{Assembly.GetCallingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
         }
 
+        /// <summary>
+        /// Sets up a web UI page to interact with the server via http requests.
+        /// </summary>
+        /// <param name="app">The web application builder</param>
+        /// <param name="apiName">Name for the API</param>
+        /// <param name="apiVersion">SemVer version of the API, usually starts with 'v' like v0.1</param>
+        /// <param name="setSwaggerUiAsDefaultPage">Use the swaggerUI as default server page</param>
         public static void UseSwaggerUiWithForwardedHost(this IApplicationBuilder app,
             string apiName, 
             string apiVersion,
