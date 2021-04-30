@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Trakx.Utils.Extensions;
 
 namespace Trakx.Utils.Serialization.Converters
 {
@@ -60,6 +61,18 @@ namespace Trakx.Utils.Serialization.Converters
         {
             var convertedDictionary = new Dictionary<string, TValue>(value.Count);
             foreach (var (k, v) in value) convertedDictionary[k.ToString("yyyy-MM-ddTHH:mm:ssK")] = v;
+
+            JsonSerializer.Serialize(writer, convertedDictionary, options);
+            convertedDictionary.Clear();
+        }
+    }
+
+    public sealed class JsonDateTimeOffsetKeyDictionaryConverter<TValue> : JsonNonStringKeyDictionaryConverter<DateTimeOffset, TValue>
+    {
+        public override void Write(Utf8JsonWriter writer, IDictionary<DateTimeOffset, TValue> value, JsonSerializerOptions options)
+        {
+            var convertedDictionary = new Dictionary<string, TValue>(value.Count);
+            foreach (var (k, v) in value) convertedDictionary[k.ToIso8601()] = v;
 
             JsonSerializer.Serialize(writer, convertedDictionary, options);
             convertedDictionary.Clear();
