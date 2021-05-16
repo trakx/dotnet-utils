@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Trakx.Utils.Extensions;
 
 namespace Trakx.Utils.Attributes
 {

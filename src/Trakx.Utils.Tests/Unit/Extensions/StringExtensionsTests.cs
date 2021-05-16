@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Threading;
 using FluentAssertions;
-using Trakx.Utils.Extensions;
 using Microsoft.Reactive.Testing;
 using Xunit;
 
@@ -55,13 +55,16 @@ namespace Trakx.Utils.Tests.Unit.Extensions
             using var cancellationSource = new CancellationTokenSource();
             var end = TimeSpan.FromMinutes(10);
             const string cron = "*/1 * * * *"; //once a minute
-            var triggeredEvents = 0;
-            var sub = cron.ToCronObservable(cancellationSource.Token, scheduler).Subscribe(_ => triggeredEvents++);
+            var triggeredEvents = new List<DateTimeOffset>();
+            var sub = cron.ToCronObservable(cancellationSource.Token, scheduler)
+                .Subscribe(t => triggeredEvents.Add(t.Item1));
 
             scheduler.Schedule(end, () => cancellationSource.Cancel(false));
             scheduler.Start();
 
-            triggeredEvents.Should().Be(10);
+            triggeredEvents.Count.Should().Be(10);
+            triggeredEvents.Should().BeEquivalentTo(Enumerable.Range(0, 10)
+                .Select(i => new DateTimeOffset().Add(TimeSpan.FromMinutes(i))));
             sub.Dispose();
         }
     }

@@ -27,5 +27,15 @@ namespace Trakx.Utils.Tests.Unit.Extensions
             effectiveHours.Count(k => k.Closing.TimeOfDay.Equals(TimeSpan.FromHours(17))).Should().Be(24 * 2 + 1);
             effectiveHours.Count(k => k.Closing.TimeOfDay.Equals(TimeSpan.FromHours(18))).Should().Be(24 * 2);
         }
+
+        [Fact]
+        public void Round_should_round_to_nearest_value()
+        {
+            var offset = TimeSpan.FromTicks(1);
+            var dateTime = new DateTimeOffset().Add(offset);
+
+            dateTime.Round(TimeSpan.FromMinutes(1)).Should().Be(new DateTimeOffset());
+            dateTime.Add(TimeSpan.FromSeconds(30)).Round(TimeSpan.FromMinutes(1)).Should().Be(new DateTimeOffset().Add(TimeSpan.FromMinutes(1)));
+        }
     }
 }
