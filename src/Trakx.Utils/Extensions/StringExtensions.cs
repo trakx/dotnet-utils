@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 
 namespace Trakx.Utils.Extensions
 {
@@ -95,5 +98,24 @@ namespace Trakx.Utils.Extensions
         }
 
         #endregion
+
+        public static List<string> ToLines(this string value)
+        {
+            var lines = value.Split(
+                new[] { "\r\n", "\r", "\n" },
+                StringSplitOptions.None
+            ).ToList();
+            return lines;
+        }
+
+        public static IObservable<int> ToCronObservable(this string cron, CancellationToken cancellationToken, IScheduler scheduler)
+        {
+            var schedule = NCrontab.CrontabSchedule.Parse(cron);
+            return Observable.Generate(0,
+                d => !cancellationToken.IsCancellationRequested,
+                d => d + 1, d => d,
+                d => new DateTimeOffset(schedule.GetNextOccurrence(scheduler.Now.UtcDateTime)),
+                scheduler);
+        }
     }
 }
