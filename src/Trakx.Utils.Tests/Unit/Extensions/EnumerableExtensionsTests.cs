@@ -18,6 +18,27 @@ namespace Trakx.Utils.Tests.Unit.Extensions
             _distribution = new[] {1.3, 1.2, 1.0, 0.9, 0.8, 0.8, 1.2};
         }
 
+        private class ObjectToCompare
+        {
+            public string? Name { get; init; }
+            public string? Reference { get; init; }
+        }
+
+        [Fact]
+        public void DistinctBy_should_compare_items_using_selector()
+        {
+            var classes = new[]
+            {
+                new ObjectToCompare {Name = "abc", Reference = "123"},
+                new ObjectToCompare {Name = "def", Reference = "123"},
+                new ObjectToCompare {Name = "ghi", Reference = "123"},
+                new ObjectToCompare {Name = "abc", Reference = "456"},
+            };
+
+            classes.DistinctBy(c => c!.Name).Should().BeEquivalentTo(classes.Take(3));
+            classes.DistinctBy(c => c!.Reference).Should().BeEquivalentTo(classes[0]!, classes[3]!);
+        }
+
         [Fact]
         public void Shuffle_should_randomise_collection_items()
         {
