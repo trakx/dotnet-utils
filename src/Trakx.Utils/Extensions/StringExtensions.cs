@@ -111,18 +111,18 @@ public static class StringExtensions
     /// Returns an observable of (DateTimeOffset, int) where the value each DateTimeOffset is the minute
     /// at which the event occurred, and the integer is a number used to index the occurrence.
     /// </summary>
-    /// <param name="cron">The CRON expression used to trigger the events.</param>
+    /// <param name="cronExpression">The CRON expression used to trigger the events.</param>
     /// <param name="cancellationToken">A token which can be cancelled to terminate the stream.</param>
     /// <param name="scheduler">The Scheduler responsible for the timing of events.</param>
     /// <returns></returns>
-    public static IObservable<(DateTimeOffset, int)> ToCronObservable(this string cron, CancellationToken cancellationToken, IScheduler scheduler)
+    public static IObservable<DateTimeOffset> ToCronObservable(this string cronExpression, CancellationToken cancellationToken, IScheduler scheduler)
     {
-        var schedule = NCrontab.CrontabSchedule.Parse(cron);
-        return Observable.Generate(0,
+        var cron = NCrontab.CrontabSchedule.Parse(cronExpression);
+        return Observable.Generate(new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime)),
             d => !cancellationToken.IsCancellationRequested,
-            d => d + 1, 
-            d => (scheduler.Now.Round(TimeSpan.FromMinutes(1)), d),
-            d => new DateTimeOffset(schedule.GetNextOccurrence(scheduler.Now.UtcDateTime)),
+            d => new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime.AddSeconds(30))), 
+            d => d,
+            d => new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime)),
             scheduler);
     }
 }

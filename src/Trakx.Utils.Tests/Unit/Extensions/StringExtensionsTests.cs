@@ -6,11 +6,19 @@ using System.Threading;
 using FluentAssertions;
 using Microsoft.Reactive.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Trakx.Utils.Tests.Unit.Extensions
 {
     public class StringExtensionsTests
     {
+        private readonly ITestOutputHelper _output;
+
+        public StringExtensionsTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
         public void SplitCsvToDistinctList_should_work_on_empty_strings()
         {
@@ -53,19 +61,22 @@ namespace Trakx.Utils.Tests.Unit.Extensions
         {
             var scheduler = new TestScheduler();
             using var cancellationSource = new CancellationTokenSource();
-            var end = TimeSpan.FromMinutes(10);
+            var end = TimeSpan.FromMinutes(60).Add(TimeSpan.FromTicks(1));
             const string cron = "*/1 * * * *"; //once a minute
             var triggeredEvents = new List<DateTimeOffset>();
-            var sub = cron.ToCronObservable(cancellationSource.Token, scheduler)
-                .Subscribe(t => triggeredEvents.Add(t.Item1));
+            using var sub = cron.ToCronObservable(cancellationSource.Token, scheduler)
+                .Subscribe(t =>
+                {
+                    _output.WriteLine($"OnNext received at {scheduler.Now} with timestamp {t}");
+                    triggeredEvents.Add(t);
+                });
 
-            scheduler.Schedule(end, () => cancellationSource.Cancel(false));
+            scheduler.Schedule(end, () => scheduler.Stop());
             scheduler.Start();
 
-            triggeredEvents.Count.Should().Be(10);
-            triggeredEvents.Should().BeEquivalentTo(Enumerable.Range(0, 10)
+            triggeredEvents.Count.Should().Be(60);
+            triggeredEvents.Should().BeEquivalentTo(Enumerable.Range(1, 60)
                 .Select(i => new DateTimeOffset().Add(TimeSpan.FromMinutes(i))));
-            sub.Dispose();
         }
     }
 }
