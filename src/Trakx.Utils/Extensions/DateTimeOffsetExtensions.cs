@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using Trakx.Utils.DateTimeHelpers;
 
 namespace Trakx.Utils.Extensions
 {
@@ -9,5 +10,15 @@ namespace Trakx.Utils.Extensions
         {
             return offset.DateTime.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture);
         }
+
+        public static DateTimeOffset Round(this DateTimeOffset offset, TimeSpan timeSpan)
+        {
+            var offsetUtcDateTime = offset.UtcDateTime;
+            var roundDateTime = new DateTime((offsetUtcDateTime.Ticks + timeSpan.Ticks / 2 - 1) / timeSpan.Ticks * timeSpan.Ticks, offsetUtcDateTime.Kind);
+            return new DateTimeOffset(roundDateTime);
+        }
+
+        public static DateTimeOffset Round(this DateTimeOffset offset, Period period) =>
+            Round(offset, period.ToTimeSpan());
     }
 }
