@@ -37,5 +37,36 @@ namespace Trakx.Utils.Tests.Unit.Extensions
             dateTime.Round(TimeSpan.FromMinutes(1)).Should().Be(new DateTimeOffset());
             dateTime.Add(TimeSpan.FromSeconds(30)).Round(TimeSpan.FromMinutes(1)).Should().Be(new DateTimeOffset().Add(TimeSpan.FromMinutes(1)));
         }
+
+        [Fact]
+        public void GetDatesUntil_should_return_round_dates_until_endTime()
+        {
+            var start = DateTimeOffset.Parse("2021-05-01T22:34:44z");
+            var end = DateTimeOffset.Parse("2021-05-04T21:11:11z");
+
+            start.GetDatesUntil(end).Should().BeEquivalentTo(new []
+            {
+                DateTimeOffset.Parse("2021-05-01Z"),
+                DateTimeOffset.Parse("2021-05-02Z"),
+                DateTimeOffset.Parse("2021-05-03Z"),
+                DateTimeOffset.Parse("2021-05-04Z"),
+            });
+
+            end.GetDatesUntil(start).Should().BeEmpty();
+        }
+
+        [Fact]
+        public void GetDatesUntil_should_return_single_date()
+        {
+            var start = DateTimeOffset.Parse("2021-05-01T21:34:44z");
+            var end = DateTimeOffset.Parse("2021-05-01T22:11:11z");
+
+            start.GetDatesUntil(end).Should().BeEquivalentTo(new[]
+            {
+                DateTimeOffset.Parse("2021-05-01Z")
+            });
+
+            end.GetDatesUntil(start).Should().BeEmpty();
+        }
     }
 }
