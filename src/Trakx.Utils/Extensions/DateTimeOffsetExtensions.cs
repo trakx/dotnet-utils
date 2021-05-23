@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Trakx.Utils.DateTimeHelpers;
 
 namespace Trakx.Utils.Extensions
@@ -20,5 +22,16 @@ namespace Trakx.Utils.Extensions
 
         public static DateTimeOffset Round(this DateTimeOffset offset, Period period) =>
             Round(offset, period.ToTimeSpan());
+
+
+        public static List<DateTimeOffset> GetDatesUntil(this DateTimeOffset startDate, DateTimeOffset endDate)
+        {
+            if (startDate > endDate) return new List<DateTimeOffset>();
+            var count = 1 + endDate.Date.Subtract(startDate.Date).Days;
+            var dates = Enumerable.Range(0, count)
+                .Select(offset => new DateTimeOffset(startDate.Date.AddDays(offset), TimeSpan.Zero))
+                .ToList();
+            return dates;
+        }
     }
 }
