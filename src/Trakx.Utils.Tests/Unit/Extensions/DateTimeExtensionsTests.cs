@@ -68,5 +68,20 @@ namespace Trakx.Utils.Tests.Unit.Extensions
 
             end.GetDatesUntil(start).Should().BeEmpty();
         }
+
+        [Theory]
+        [InlineData("2021-05-01Z", "2021-05-01Z")]
+        [InlineData("2021-05-01T15:34:40Z", "2021-05-01Z")]
+        [InlineData("2021-05-01T04:30:40+05:30", "2021-04-30Z")]
+        [InlineData("2021-05-01T18:30:40-05:30", "2021-05-02Z")]
+        [InlineData("2021-05-01T18:40:40-05:30", "2021-05-02Z")]
+        public void DateUtc_should_return_single_date(string dateTime, string expectedDate)
+        {
+            var input = DateTimeOffset.Parse(dateTime);
+            var expectedOutput = DateTimeOffset.Parse(expectedDate);
+
+            input.UtcDate().Should().Be(expectedOutput);
+
+        }
     }
 }

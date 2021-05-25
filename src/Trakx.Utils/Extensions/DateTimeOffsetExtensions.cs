@@ -16,7 +16,9 @@ namespace Trakx.Utils.Extensions
         public static DateTimeOffset Round(this DateTimeOffset offset, TimeSpan timeSpan)
         {
             var offsetUtcDateTime = offset.UtcDateTime;
-            var roundDateTime = new DateTime((offsetUtcDateTime.Ticks + timeSpan.Ticks / 2 - 1) / timeSpan.Ticks * timeSpan.Ticks, offsetUtcDateTime.Kind);
+            var roundDateTime =
+                new DateTime((offsetUtcDateTime.Ticks + timeSpan.Ticks / 2 - 1) / timeSpan.Ticks * timeSpan.Ticks,
+                    offsetUtcDateTime.Kind);
             return new DateTimeOffset(roundDateTime);
         }
 
@@ -33,5 +35,13 @@ namespace Trakx.Utils.Extensions
                 .ToList();
             return dates;
         }
+
+        /// <summary>
+        /// Get the Date part of the Date time, represented in UTC.
+        /// </summary>
+        /// <param name="dateTime">DateTime for which we need the date part.</param>
+        /// <returns>The UTC date as of <see cref="dateTime"/></returns>
+        public static DateTimeOffset UtcDate(this DateTimeOffset dateTime) =>
+            new(dateTime.UtcDateTime.Date, TimeSpan.Zero);
     }
 }
