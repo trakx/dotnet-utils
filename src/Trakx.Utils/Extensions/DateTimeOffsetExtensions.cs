@@ -25,14 +25,23 @@ namespace Trakx.Utils.Extensions
         public static DateTimeOffset Round(this DateTimeOffset offset, Period period) =>
             Round(offset, period.ToTimeSpan());
 
-
-        public static List<DateTimeOffset> GetDatesUntil(this DateTimeOffset startDate, DateTimeOffset endDate)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="startDate">Date we start looking forward from.</param>
+        /// <param name="endDate">Latest date at which we want to arrive.</param>
+        /// <param name="strict">True by default, meaning that the last date of the interval will be removed if
+        /// it is equal to <see cref="endDate"/>.</param>
+        /// <returns></returns>
+        public static List<DateTimeOffset> GetDatesUntil(this DateTimeOffset startDate, DateTimeOffset endDate,
+            bool strict = true)
         {
             if (startDate > endDate) return new List<DateTimeOffset>();
-            var count = 1 + endDate.Date.Subtract(startDate.Date).Days;
+            var count = 1 + endDate.UtcDate().Subtract(startDate.UtcDate()).Days;
             var dates = Enumerable.Range(0, count)
                 .Select(offset => new DateTimeOffset(startDate.Date.AddDays(offset), TimeSpan.Zero))
                 .ToList();
+            if (strict && endDate == dates.Last()) dates.Remove(dates.Last());
             return dates;
         }
 
