@@ -69,6 +69,29 @@ namespace Trakx.Utils.Tests.Unit.Extensions
             end.GetDatesUntil(start).Should().BeEmpty();
         }
 
+        [Fact]
+        public void GetDatesUntil_strict_should_remove_last_date_if_same_as_enddate()
+        {
+            var start = DateTimeOffset.Parse("2021-05-01T21:34:44z");
+            var end = DateTimeOffset.Parse("2021-05-03T00:00:00z");
+
+            start.GetDatesUntil(end).Should().BeEquivalentTo(new[]
+            {
+                DateTimeOffset.Parse("2021-05-01Z"),
+                DateTimeOffset.Parse("2021-05-02Z")
+            });
+
+            start.GetDatesUntil(end, false).Should().BeEquivalentTo(new[]
+            {
+                DateTimeOffset.Parse("2021-05-01Z"),
+                DateTimeOffset.Parse("2021-05-02Z"),
+                DateTimeOffset.Parse("2021-05-03Z")
+            });
+
+            end.GetDatesUntil(start).Should().BeEmpty();
+        }
+
+
         [Theory]
         [InlineData("2021-05-01Z", "2021-05-01Z")]
         [InlineData("2021-05-01T15:34:40Z", "2021-05-01Z")]
