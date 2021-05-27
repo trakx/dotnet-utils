@@ -159,7 +159,9 @@ namespace Trakx.Utils.Tests.Unit.Extensions
         public void ToCsvDistinctList_should_join_trimmed_lower_cased_ToString_results_with_spacing()
         {
             var strings = new[] {"ab ", "def", " klm", "KlM"};
-            strings.ToCsvDistinctList(true).Should().Be("ab, def, klm");
+            strings.ToCsvList(true, true, true, quoted: false).Should().Be("ab, def, klm");
+            strings.ToCsvList(true, false, true, quoted: true, trim: false)
+                .Should().Be("\"ab \", \"def\", \" klm\", \"KlM\"");
         }
 
         [Fact]
