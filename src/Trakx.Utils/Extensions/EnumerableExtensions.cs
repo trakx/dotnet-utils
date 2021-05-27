@@ -136,10 +136,24 @@ namespace Trakx.Utils.Extensions
             return SelectPreferenceWithMaxDeviationThreshold(preferences, valueSelector, 0, true);
         }
 
-        public static string ToCsvDistinctList<T>(this IEnumerable<T> items, bool spacing = false)
+        public static string ToCsvList<T>(this IEnumerable<T> items, 
+            bool distinct = false,
+            bool toLower = false,
+            bool spacing = false,
+            bool trim = true,
+            bool quoted = true)
         {
+            var stringItems = items.Select(i =>
+            {
+                var result = i?.ToString() ?? "";
+                if (toLower) result = result.ToLowerInvariant();
+                if (trim) result = result.Trim(' ');
+                if (quoted) result = $"\"{result}\"";
+                return result;
+            });
+            if (distinct) stringItems = stringItems.Distinct();
             var separator = "," + (spacing ? " " : string.Empty);
-            return string.Join(separator, items.Select(i => i!.ToString()!.ToLowerInvariant().Trim(' ')).Distinct());
+            return string.Join(separator, stringItems);
         }
 
         public static IEnumerable<T?> DistinctBy<T, TKey>(this IEnumerable<T> items, Func<T?, TKey> selector)
