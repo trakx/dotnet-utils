@@ -114,15 +114,25 @@ public static class StringExtensions
     /// <param name="cronExpression">The CRON expression used to trigger the events.</param>
     /// <param name="cancellationToken">A token which can be cancelled to terminate the stream.</param>
     /// <param name="scheduler">The Scheduler responsible for the timing of events.</param>
+    /// <param name="startImmediately">Set to true to schedule an event immediately upon creating the stream.</param>
     /// <returns></returns>
-    public static IObservable<DateTimeOffset> ToCronObservable(this string cronExpression, CancellationToken cancellationToken, IScheduler scheduler)
+    public static IObservable<DateTimeOffset> ToCronObservable(this string cronExpression,
+        CancellationToken cancellationToken, 
+        IScheduler scheduler, 
+        bool startImmediately = false)
     {
         var cron = NCrontab.CrontabSchedule.Parse(cronExpression);
-        return Observable.Generate(new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime)),
+        var initialState = startImmediately
+            ? scheduler.Now.ToUniversalTime()
+            : new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime));
+        return Observable.Generate(initialState,
             d => !cancellationToken.IsCancellationRequested,
             d => new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime.AddSeconds(30))), 
             d => d,
-            d => new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime)),
+            d => 
+                d == initialState && startImmediately 
+                    ? d
+                    :  new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime)),
             scheduler);
     }
 }
