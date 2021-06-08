@@ -5,6 +5,7 @@ using System.Reactive.Concurrency;
 using System.Threading;
 using FluentAssertions;
 using Microsoft.Reactive.Testing;
+using Trakx.Utils.Extensions;
 using Xunit;
 using Xunit.Abstractions;
 
