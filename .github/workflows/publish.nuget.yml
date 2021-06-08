@@ -89,7 +89,7 @@ jobs:
       - name: Package
         run: |
           dotnet pack ${{env.PROJECT_PATH}} --no-build --configuration ${{ steps.comp-mode.outputs.compilationMode }} \
-            --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }}--include-symbols --include-source
+            --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }} --include-symbols --include-source
 
       - name: Publish
         # https://github.com/NuGet/Home/issues/8580
