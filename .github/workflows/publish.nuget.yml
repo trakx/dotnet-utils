@@ -17,7 +17,8 @@ on:
 
 env:
   SOLUTION_PATH: "src/Trakx.Utils.sln"
-  PROJECT_PATH: "src/Trakx.Utils/Trakx.Utils.csproj"
+  UTILS_PROJECT_PATH: "src/Trakx.Utils/Trakx.Utils.csproj"
+  TESTING_PROJECT_PATH: "src/Trakx.Utils.Testing/Trakx.Utils.Testing.csproj"
 
 jobs:
 
@@ -88,7 +89,9 @@ jobs:
 
       - name: Package
         run: |
-          dotnet pack ${{env.PROJECT_PATH}} --no-build --configuration ${{ steps.comp-mode.outputs.compilationMode }} \
+          dotnet pack ${{env.UTILS_PROJECT_PATH}} --no-build --configuration ${{ steps.comp-mode.outputs.compilationMode }} \
+            --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }} --include-symbols --include-source
+          dotnet pack ${{env.TESTING_PROJECT_PATH}} --no-build --configuration ${{ steps.comp-mode.outputs.compilationMode }} \
             --output ./nuget/ -p:PackageVersion=${{ steps.bumpSemver.outputs.new_tag }} --include-symbols --include-source
 
       - name: Publish
