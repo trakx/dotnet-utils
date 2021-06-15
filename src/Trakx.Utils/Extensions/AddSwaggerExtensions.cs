@@ -20,8 +20,9 @@ namespace Trakx.Utils.Extensions
         /// <param name="apiVersion">SemVer version of the API, usually starts with 'v' like v0.1</param>
         /// <param name="apiDescription">Short description of the purpose of the documented API</param>
         /// <param name="assemblyName">use Assembly.GetExecutingAssembly().GetName().Name</param>
+        /// <param name="authDomain"></param>
         public static void AddSwaggerJsonAndUi(this IServiceCollection services, string apiName, string apiVersion,
-            string apiDescription, string? assemblyName = null)
+            string apiDescription, string? assemblyName = null, string? authDomain = null)
         {
             services.AddSwaggerGen(c =>
             {
@@ -30,6 +31,31 @@ namespace Trakx.Utils.Extensions
                 var xmlFile = $"{assemblyName ?? Assembly.GetEntryAssembly()?.GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
+
+                if(authDomain == default) return;
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        ClientCredentials = new OpenApiOAuthFlow
+                        {
+                            Scopes = new Dictionary<string, string>
+                            {
+                                { "openid", "openid" },
+                                { "profile", "profile" },
+                                { "email", "email" },
+                                { "permissions", "permissions" },
+                                { "scope", "scope" },
+                            },
+
+                            AuthorizationUrl = new Uri($"https://{authDomain}/authorize")
+                        }
+                    }
+                });
             });
 
             services.AddOpenApiDocument(settings =>
