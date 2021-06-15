@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Trakx.Utils.Extensions
 {
@@ -95,5 +98,43 @@ namespace Trakx.Utils.Extensions
         }
 
         #endregion
+
+        public static List<string> ToLines(this string value)
+        {
+            var lines = value.Split(
+                new[] { "\r\n", "\r", "\n" },
+                StringSplitOptions.None
+            ).ToList();
+            return lines;
+        }
+
+        /// <summary>
+        /// Returns an observable of (DateTimeOffset, int) where the value each DateTimeOffset is the minute
+        /// at which the event occurred, and the integer is a number used to index the occurrence.
+        /// </summary>
+        /// <param name="cronExpression">The CRON expression used to trigger the events.</param>
+        /// <param name="cancellationToken">A token which can be cancelled to terminate the stream.</param>
+        /// <param name="scheduler">The Scheduler responsible for the timing of events.</param>
+        /// <param name="startImmediately">Set to true to schedule an event immediately upon creating the stream.</param>
+        /// <returns></returns>
+        public static IObservable<DateTimeOffset> ToCronObservable(this string cronExpression,
+            CancellationToken cancellationToken, 
+            IScheduler scheduler, 
+            bool startImmediately = false)
+        {
+            var cron = NCrontab.CrontabSchedule.Parse(cronExpression);
+            var initialState = startImmediately
+                ? scheduler.Now.ToUniversalTime()
+                : new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime));
+            return Observable.Generate(initialState,
+                d => !cancellationToken.IsCancellationRequested,
+                d => new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime.AddSeconds(30))), 
+                d => d,
+                d => 
+                    d == initialState && startImmediately 
+                        ? d
+                        :  new DateTimeOffset(cron.GetNextOccurrence(scheduler.Now.UtcDateTime)),
+                scheduler);
+        }
     }
 }

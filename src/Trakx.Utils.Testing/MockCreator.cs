@@ -6,23 +6,23 @@ namespace Trakx.Utils.Testing
 {
     public class MockCreator
     {
-        protected readonly Random Random;
-        protected static readonly string AddressChars = "abcdef01234566789";
+        public readonly Random Random;
+        protected static readonly string HexChars = "abcdef01234566789";
         protected static readonly string Alphabet = "abcdefghijklmnopqrstuvwxyz";
-        protected readonly string Name;
+        public readonly string TestName;
 
         public MockCreator(ITestOutputHelper output)
         {
-            Name = output.GetCurrentTestName();
-            Random = new Random(Name.GetHashCode());
+            TestName = output.GetCurrentTestName();
+            Random = new Random(TestName.GetHashCode());
         }
 
         public string GetRandomAddressEthereum() => "0x" + new string(Enumerable.Range(0, 40)
-            .Select(_ => AddressChars[Random.Next(0, AddressChars.Length)]).ToArray());
+            .Select(_ => HexChars[Random.Next(0, HexChars.Length)]).ToArray());
         public string GetRandomEthereumTransactionHash() => "0x" + new string(Enumerable.Range(0, 64)
-                                                        .Select(_ => AddressChars[Random.Next(0, AddressChars.Length)]).ToArray());
+                                                        .Select(_ => HexChars[Random.Next(0, HexChars.Length)]).ToArray());
 
-        public string GetRandomString(int size) => new string(Enumerable.Range(0, size)
+        public string GetRandomString(int size) => new (Enumerable.Range(0, size)
             .Select(_ => Alphabet[Random.Next(0, Alphabet.Length)]).ToArray());
 
         public string GetRandomYearMonthSuffix() => $"{Random.Next(20, 36):00}{Random.Next(1, 13):00}";
@@ -48,6 +48,6 @@ namespace Trakx.Utils.Testing
 
         public decimal GetRandomPrice() => Random.Next(1, int.MaxValue) / 1e5m;
         public decimal GetRandomValue() => Random.Next(1, int.MaxValue) / 1e2m;
-        public TimeSpan GetRandomTimeSpan() => TimeSpan.FromSeconds(Random.Next(1, (int)TimeSpan.FromDays(1000).TotalSeconds));
+        public TimeSpan GetRandomTimeSpan(double MaxDurationInDays = 1000) => TimeSpan.FromSeconds(Random.Next(1, (int)TimeSpan.FromDays(MaxDurationInDays).TotalSeconds));
     }
 }
