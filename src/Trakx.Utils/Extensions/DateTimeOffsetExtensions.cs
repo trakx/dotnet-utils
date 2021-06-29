@@ -8,9 +8,10 @@ namespace Trakx.Utils.Extensions
 {
     public static class DateTimeOffsetExtensions
     {
-        public static string ToIso8601(this DateTimeOffset offset)
+        public static string ToIso8601(this DateTimeOffset dateTime, bool asUtc = true)
         {
-            return offset.DateTime.ToUniversalTime().ToString("o", CultureInfo.InvariantCulture);
+            var finalDate = asUtc ? dateTime.ToUniversalTime() : dateTime;
+            return finalDate.ToString("o", CultureInfo.InvariantCulture);
         }
 
         public static DateTimeOffset Round(this DateTimeOffset offset, TimeSpan timeSpan)
