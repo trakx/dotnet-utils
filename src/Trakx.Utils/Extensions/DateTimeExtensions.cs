@@ -17,20 +17,20 @@ namespace Trakx.Utils.Extensions
 
         public static TimeZoneInfo LondonTimeZone => LazyLondonTimeZone.Value;
 
-        public static string ToIso8601(this DateTime dateTime)
+        public static string ToIso8601(this DateTimeOffset dateTime, bool asUtc)
         {
-            return dateTime.ToUniversalTime()
-                .ToString("o", CultureInfo.InvariantCulture);
+            var finalDate = asUtc ? dateTime.ToUniversalTime() : dateTime;
+            return finalDate.ToString("o", CultureInfo.InvariantCulture);
         }
 
-        public static ulong ToUnixDateTime(this DateTime dateTime)
+        public static ulong ToUnixDateTime(this DateTime utcDateTime)
         {
-            return (ulong) new DateTimeOffset(dateTime).ToUnixTimeSeconds();
+            return (ulong) new DateTimeOffset(utcDateTime).ToUnixTimeSeconds();
         }
 
-        public static ulong ToUnixDateTimeMilliseconds(this DateTime dateTime)
+        public static ulong ToUnixDateTimeMilliseconds(this DateTime utcDateTime)
         {
-            return (ulong)new DateTimeOffset(dateTime).ToUnixTimeMilliseconds();
+            return (ulong)new DateTimeOffset(utcDateTime).ToUnixTimeMilliseconds();
         }
 
         /// <summary>
